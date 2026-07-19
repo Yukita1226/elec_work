@@ -29,6 +29,7 @@ int pmx =0;
 #define DKGRAY  0x2104
 #define ORANGE  0xFD20
 #define MAGENTA 0xF81F
+#define DGBLUE 0x0110
 
 #define CBLUE   0x1BDC
 #define CGREEN  0x2D6A
@@ -36,10 +37,10 @@ int pmx =0;
 #define LTGRAY  0xC618
 #define DBLUE   0x11EB
 
-#define SYNC_BTN_X 300
-#define SYNC_BTN_Y 390
+#define SYNC_BTN_X 20
+#define SYNC_BTN_Y 380
 #define SYNC_BTN_W 200
-#define SYNC_BTN_H 60
+#define SYNC_BTN_H 70
 
 #define ON_BTN_X  565
 #define ON_BTN_Y  380
@@ -571,7 +572,7 @@ void drawTab2() {
   display->setTextColor(RED, WHITE);     display->setCursor(580, 180); display->printf("PM2.5: %-4d", (int)incomingData.pm2_5);
   display->setTextColor(GREEN, WHITE);   display->setCursor(580, 200); display->printf("PM10 : %-4d", (int)incomingData.pm10);
 
-  display->setTextColor(CYAN, WHITE);    display->setCursor(580, 220); display->printf("O3   : %-5.2f", o3_ppm);
+  display->setTextColor(DGBLUE, WHITE);    display->setCursor(580, 220); display->printf("O3   : %-5.2f", o3_ppm);
   display->setTextColor(YELLOW, WHITE);  display->setCursor(580, 240); display->printf("VOC  : %-5.2f", tvoc);
   display->setTextColor(ORANGE, WHITE);  display->setCursor(580, 260); display->printf("CO2  : %-5.2f", eco2);
   display->setTextColor(MAGENTA, WHITE); display->setCursor(580, 280); display->printf("AQI  : %-5d", aqi);
@@ -605,7 +606,7 @@ void drawTab2() {
       display->drawWideLine(x1, y1, x2, y2, 1.7f, c);
     };
     drawLineVal(graphPM1, BLACK); drawLineVal(graphPM25, RED); drawLineVal(graphPM10, GREEN);
-    drawLineVal(graphO3, CYAN); drawLineVal(graphVOC, YELLOW); drawLineVal(graphCO2, ORANGE); drawLineVal(graphAQI, MAGENTA);
+    drawLineVal(graphO3, DGBLUE); drawLineVal(graphVOC, YELLOW); drawLineVal(graphCO2, ORANGE); drawLineVal(graphAQI, MAGENTA);
   }
 }
 
@@ -613,7 +614,7 @@ void drawSyncButton(bool pressed) {
   if (currentTab != 2) return;
   uint16_t fillColor = pressed ? YELLOW : BLUE;
   display->fillRoundRect(SYNC_BTN_X, SYNC_BTN_Y, SYNC_BTN_W, SYNC_BTN_H,6, fillColor);
-  display->drawRoundRect(SYNC_BTN_X, SYNC_BTN_Y, SYNC_BTN_W, SYNC_BTN_H,6, WHITE);
+  display->drawRoundRect(SYNC_BTN_X, SYNC_BTN_Y, SYNC_BTN_W, SYNC_BTN_H, 6, DKGRAY);
   display->setTextColor(BLACK, fillColor);
   display->setTextSize(3);
   display->setCursor(SYNC_BTN_X + 60, SYNC_BTN_Y + 20);
@@ -624,6 +625,8 @@ void drawTab3() {
   display->fillRect(0, 41, 800, 439, WHITE);
   for (int i = 0; i < 32; i++) drawSingleButton(i);
   drawSyncButton(false);
+  drawPowerButtons(0);
+
 }
 
 void drawSingleButton(int i) {
@@ -725,6 +728,22 @@ datax();
     } else if (currentTab == 2) {
       if (tx >= SYNC_BTN_X && tx < (SYNC_BTN_X + SYNC_BTN_W) && ty >= SYNC_BTN_Y && ty < (SYNC_BTN_Y + SYNC_BTN_H)) {
         if (millis() - debounceTimer > 120) { syncRelayBoardFromSavedState(); requestRelayStatus(); debounceTimer = millis(); }
+      } else if (tx >= ON_BTN_X && tx < (ON_BTN_X + PWR_BTN_W) && ty >= ON_BTN_Y && ty < (ON_BTN_Y + PWR_BTN_H)) {
+        if (millis() - debounceTimer > 300) {
+          drawPowerButtons(1);
+          setAllRelays(true);
+          for (int i = 0; i < 32; i++) drawSingleButton(i);
+          drawPowerButtons(0);
+          debounceTimer = millis();
+        }
+      } else if (tx >= OFF_BTN_X && tx < (OFF_BTN_X + PWR_BTN_W) && ty >= OFF_BTN_Y && ty < (OFF_BTN_Y + PWR_BTN_H)) {
+        if (millis() - debounceTimer > 300) {
+          drawPowerButtons(2);
+          setAllRelays(false);
+          for (int i = 0; i < 32; i++) drawSingleButton(i);
+          drawPowerButtons(0);
+          debounceTimer = millis();
+        }
       } else {
         int col = (tx - 20) / 95, row = (ty - 60) / 80;
         if (tx >= 20 && tx < (20 + 8 * 95) && ty >= 60 && ty < (60 + 4 * 80)) {
