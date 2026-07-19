@@ -619,7 +619,7 @@ void drawSyncButton(bool pressed) {
 }
 
 void drawTab3() {
-  display->fillRect(0, 41, 800, 439, BLACK);
+  display->fillRect(0, 41, 800, 439, WHITE);
   for (int i = 0; i < 32; i++) drawSingleButton(i);
   drawSyncButton(false);
 }
