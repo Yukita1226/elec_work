@@ -42,9 +42,9 @@ int pmx =0;
 #define SYNC_BTN_H 60
 
 #define ON_BTN_X  565
-#define ON_BTN_Y  340
+#define ON_BTN_Y  380
 #define OFF_BTN_X 675
-#define OFF_BTN_Y 340
+#define OFF_BTN_Y 380
 #define PWR_BTN_W 100
 #define PWR_BTN_H 70
 
@@ -389,62 +389,62 @@ void drawTab1() {
   if (bgInit) bgSprite.pushSprite(display, 0, 41);
   else display->drawJpg(bg_jpg, bg_jpg_len, 0, 41);
 
-  display->fillRoundRect(20, 140, 240, 32, 6, CBLUE);
-  display->drawRoundRect(20, 140, 240, 160, 6, LTGRAY);
+  display->fillRoundRect(20, 160, 240, 32, 6, CBLUE);
+  display->drawRoundRect(20, 160, 240, 160, 6, LTGRAY);
   display->setTextColor(WHITE);
   display->setTextSize(2);
-  display->setCursor(68, 149);
+  display->setCursor(68, 169);
   display->print("PARTICULATES");
 
-  display->fillRoundRect(280, 140, 240, 32, 6, CGREEN);
-  display->drawRoundRect(280, 140, 240, 160, 6, LTGRAY);
+  display->fillRoundRect(280, 160, 240, 32, 6, CGREEN);
+  display->drawRoundRect(280, 160, 240, 160, 6, LTGRAY);
   display->setTextColor(WHITE);
-  display->setCursor(370, 149);
+  display->setCursor(370, 169);
   display->print("GASES");
 
-  display->fillRoundRect(540, 140, 240, 32, 6, CPURPLE);
-  display->drawRoundRect(540, 140, 240, 160, 6, LTGRAY);
+  display->fillRoundRect(540, 160, 240, 32, 6, CPURPLE);
+  display->drawRoundRect(540, 160, 240, 160, 6, LTGRAY);
   display->setTextColor(WHITE);
-  display->setCursor(636, 149);
+  display->setCursor(636, 169);
   display->print("ROLE");
 
   display->setTextColor(BLACK);
   display->setTextSize(2);
-  display->setCursor(34, 191);  display->print("PM1");
-  display->setCursor(34, 231);  display->print("PM2.5");
-  display->setCursor(34, 271);  display->print("PM10");
-  display->setCursor(196, 191); display->print("ug/m3");
-  display->setCursor(196, 231); display->print("ug/m3");
-  display->setCursor(196, 271); display->print("ug/m3");
+  display->setCursor(34, 211);  display->print("PM1");
+  display->setCursor(34, 251);  display->print("PM2.5");
+  display->setCursor(34, 291);  display->print("PM10");
+  display->setCursor(196, 211); display->print("ug/m3");
+  display->setCursor(196, 251); display->print("ug/m3");
+  display->setCursor(196, 291); display->print("ug/m3");
 
-  display->setCursor(294, 191); display->print("CO2");
-  display->setCursor(294, 231); display->print("VOC");
-  display->setCursor(462, 191); display->print("ppm");
-  display->setCursor(462, 231); display->print("ppm");
+  display->setCursor(294, 211); display->print("CO2");
+  display->setCursor(294, 251); display->print("VOC");
+  display->setCursor(462, 211); display->print("ppm");
+  display->setCursor(462, 251); display->print("ppm");
 
-  display->setCursor(554, 191); display->print("O3");
-  display->setCursor(554, 231); display->print("CO2");
-  display->setCursor(554, 271); display->print("VOC");
-  display->setCursor(730, 191); display->print("ppm");
-  display->setCursor(730, 231); display->print("ppm");
-  display->setCursor(730, 271); display->print("ppm");
+  display->setCursor(554, 211); display->print("O3");
+  display->setCursor(554, 251); display->print("CO2");
+  display->setCursor(554, 291); display->print("VOC");
+  display->setCursor(730, 211); display->print("ppm");
+  display->setCursor(730, 251); display->print("ppm");
+  display->setCursor(730, 291); display->print("ppm");
 
-  display->drawRoundRect(20, 310, 520, 120, 6, LTGRAY);
+  display->drawRoundRect(20, 330, 520, 120, 6, LTGRAY);
   display->setTextColor(DBLUE);
   display->setTextSize(2);
-  display->setCursor(226, 318);
+  display->setCursor(226, 338);
   display->print("AQI INDEX");
 
-  display->fillRect(60, 384, 88, 22, GREEN);
-  display->fillRect(148, 384, 88, 22, CYAN);
-  display->fillRect(236, 384, 88, 22, YELLOW);
-  display->fillRect(324, 384, 88, 22, ORANGE);
-  display->fillRect(412, 384, 88, 22, RED);
-  display->drawRect(60, 384, 440, 22, BLACK);
+  display->fillRect(60, 404, 88, 22, GREEN);
+  display->fillRect(148, 404, 88, 22, CYAN);
+  display->fillRect(236, 404, 88, 22, YELLOW);
+  display->fillRect(324, 404, 88, 22, ORANGE);
+  display->fillRect(412, 404, 88, 22, RED);
+  display->drawRect(60, 404, 440, 22, BLACK);
 
   display->setTextColor(DBLUE);
   display->setTextSize(2);
-  display->setCursor(640, 318);
+  display->setCursor(630, 338);
   display->print("CONTROL");
   drawPowerButtons(0);
 
@@ -473,29 +473,29 @@ void drawPowerButtons(int pressed) {
 void updateTab1Data() {
   if (currentTab != 0) return;
 
-  restoreBG(108, 183, 86, 26);
-  restoreBG(108, 223, 86, 26);
-  restoreBG(108, 263, 86, 26);
-  restoreBG(358, 183, 100, 26);
-  restoreBG(358, 223, 100, 26);
-  restoreBG(618, 183, 100, 26);
-  restoreBG(618, 223, 100, 26);
-  restoreBG(618, 263, 100, 26);
+  restoreBG(108, 203, 86, 26);
+  restoreBG(108, 243, 86, 26);
+  restoreBG(108, 283, 86, 26);
+  restoreBG(358, 203, 100, 26);
+  restoreBG(358, 243, 100, 26);
+  restoreBG(618, 203, 100, 26);
+  restoreBG(618, 243, 100, 26);
+  restoreBG(618, 283, 100, 26);
 
   display->setTextSize(3);
   display->setTextColor(CBLUE);
-  display->setCursor(110, 185); display->printf("%-4d", incomingData.pm1_0);
-  display->setCursor(110, 225); display->printf("%-4d", incomingData.pm2_5);
-  display->setCursor(110, 265); display->printf("%-4d", incomingData.pm10);
+  display->setCursor(110, 205); display->printf("%-4d", incomingData.pm1_0);
+  display->setCursor(110, 245); display->printf("%-4d", incomingData.pm2_5);
+  display->setCursor(110, 285); display->printf("%-4d", incomingData.pm10);
 
   display->setTextColor(CGREEN);
-  display->setCursor(360, 185); display->printf("%-5.2f", eco2);
-  display->setCursor(360, 225); display->printf("%-5.2f", tvoc);
+  display->setCursor(360, 205); display->printf("%-5.2f", eco2);
+  display->setCursor(360, 245); display->printf("%-5.2f", tvoc);
 
   display->setTextColor(CPURPLE);
-  display->setCursor(620, 185); display->printf("%-5.2f", o3_ppm);
-  display->setCursor(620, 225); display->printf("%-5.2f", eco2);
-  display->setCursor(620, 265); display->printf("%-5.2f", tvoc);
+  display->setCursor(620, 205); display->printf("%-5.2f", o3_ppm);
+  display->setCursor(620, 245); display->printf("%-5.2f", eco2);
+  display->setCursor(620, 285); display->printf("%-5.2f", tvoc);
 
   if (incomingData.pm2_5 >= 91|| incomingData.pm10 >= 181)
   {
@@ -518,9 +518,9 @@ void updateTab1Data() {
     incomingData.aqi = 1;
   }
 
-  restoreBG(186, 340, 230, 30);
+  restoreBG(186, 360, 230, 30);
   display->setTextSize(3);
-  display->setCursor(190, 344);
+  display->setCursor(190, 364);
 
   if (incomingData.aqi == 1)
   {
@@ -549,30 +549,32 @@ void updateTab1Data() {
   }
   else display->print("  WAIT  ");
 
-  restoreBG(56, 366, 448, 16);
+  restoreBG(56, 386, 448, 16);
   int cx = 60 + (incomingData.aqi - 1) * 88 + 44;
   if (incomingData.aqi >= 1 && incomingData.aqi <= 5) {
-    display->fillTriangle(cx - 8, 367, cx + 8, 367, cx, 381, BLACK);
+    display->fillTriangle(cx - 8, 387, cx + 8, 387, cx, 401, BLACK);
   }
 }
 
-
 void drawTab2() {
-  display->fillRect(0, 41, 800, 439, WHITE);
-  display->drawLine(60, 450, 560, 450, BLACK);
-  display->drawLine(60, 50, 60, 450, BLACK);
-  display->fillRect(570, 50, 210, 160, WHITE);
-  display->drawRect(570, 50, 210, 160, BLACK);
+  if (!bgInit) makeBG();
+  if (bgInit) bgSprite.pushSprite(display, 0, 41);
+  else display->drawJpg(bg_jpg, bg_jpg_len, 0, 41);
+  
+  display->drawLine(60, 430, 560, 430, BLACK);
+  display->drawLine(60, 150, 60, 430, BLACK);
+
+  display->fillRect(570, 150, 210, 160, WHITE);
+  display->drawRect(570, 150, 210, 160, BLACK);
   display->setTextSize(2);
-  display->setTextColor(BLACK, WHITE);   display->setCursor(580, 60);  display->printf("PM1.0: %-4d", (int)incomingData.pm1_0);
-  display->setTextColor(RED, WHITE);     display->setCursor(580, 80);  display->printf("PM2.5: %-4d", (int)incomingData.pm2_5);
-  display->setTextColor(GREEN, WHITE);   display->setCursor(580, 100); display->printf("PM10 : %-4d", (int)incomingData.pm10);
+  display->setTextColor(BLACK, WHITE);   display->setCursor(580, 160); display->printf("PM1.0: %-4d", (int)incomingData.pm1_0);
+  display->setTextColor(RED, WHITE);     display->setCursor(580, 180); display->printf("PM2.5: %-4d", (int)incomingData.pm2_5);
+  display->setTextColor(GREEN, WHITE);   display->setCursor(580, 200); display->printf("PM10 : %-4d", (int)incomingData.pm10);
 
-  display->setTextColor(CYAN, WHITE);    display->setCursor(580, 120); display->printf("O3   : %-5.2f", o3_ppm);
-  display->setTextColor(YELLOW, WHITE);  display->setCursor(580, 140); display->printf("VOC  : %-5.2f", tvoc);
-  display->setTextColor(ORANGE, WHITE);  display->setCursor(580, 160); display->printf("CO2  : %-5.2f", eco2);
-  display->setTextColor(MAGENTA, WHITE); display->setCursor(580, 180); display->printf("AQI  : %-5d", aqi);
-
+  display->setTextColor(CYAN, WHITE);    display->setCursor(580, 220); display->printf("O3   : %-5.2f", o3_ppm);
+  display->setTextColor(YELLOW, WHITE);  display->setCursor(580, 240); display->printf("VOC  : %-5.2f", tvoc);
+  display->setTextColor(ORANGE, WHITE);  display->setCursor(580, 260); display->printf("CO2  : %-5.2f", eco2);
+  display->setTextColor(MAGENTA, WHITE); display->setCursor(580, 280); display->printf("AQI  : %-5d", aqi);
   if (graphCount < 2) return;
 
   float max_v = 1.0f, min_v = 1000000.0f;
@@ -587,10 +589,10 @@ void drawTab2() {
   if (range == 0) range = 1.0f;
 
   display->setTextSize(2);
-  display->setTextColor(BLACK, BLACK);
-  display->setCursor(5, 50);  display->printf("%4d", (int)max_v);
-  display->setCursor(5, 245); display->printf("%4d", (int)((max_v + min_v) / 2));
-  display->setCursor(5, 434); display->printf("%4d", (int)min_v);
+  display->setTextColor(BLACK, WHITE);
+  display->setCursor(5, 150); display->printf("%4d", (int)max_v);
+  display->setCursor(5, 285); display->printf("%4d", (int)((max_v + min_v) / 2));
+  display->setCursor(5, 414); display->printf("%4d", (int)min_v);
 
   int stepX = 500 / MAX_GRAPH_POINTS;
   for (int i = 0; i < graphCount - 1; i++) {
@@ -598,9 +600,9 @@ void drawTab2() {
     int idx2 = (idx1 + 1) % MAX_GRAPH_POINTS;
     int x1 = 60 + i * stepX, x2 = 60 + (i + 1) * stepX;
     auto drawLineVal = [&](float g[], uint16_t c) {
-      int y1 = 450 - (int)((g[idx1] - min_v) / range * 400);
-      int y2 = 450 - (int)((g[idx2] - min_v) / range * 400);
-      display->drawLine(x1, y1, x2, y2, c);
+      int y1 = 430 - (int)((g[idx1] - min_v) / range * 280);
+      int y2 = 430 - (int)((g[idx2] - min_v) / range * 280);
+      display->drawWideLine(x1, y1, x2, y2, 1.7f, c);
     };
     drawLineVal(graphPM1, BLACK); drawLineVal(graphPM25, RED); drawLineVal(graphPM10, GREEN);
     drawLineVal(graphO3, CYAN); drawLineVal(graphVOC, YELLOW); drawLineVal(graphCO2, ORANGE); drawLineVal(graphAQI, MAGENTA);
@@ -610,8 +612,8 @@ void drawTab2() {
 void drawSyncButton(bool pressed) {
   if (currentTab != 2) return;
   uint16_t fillColor = pressed ? YELLOW : BLUE;
-  display->fillRect(SYNC_BTN_X, SYNC_BTN_Y, SYNC_BTN_W, SYNC_BTN_H, fillColor);
-  display->drawRect(SYNC_BTN_X, SYNC_BTN_Y, SYNC_BTN_W, SYNC_BTN_H, WHITE);
+  display->fillRoundRect(SYNC_BTN_X, SYNC_BTN_Y, SYNC_BTN_W, SYNC_BTN_H,6, fillColor);
+  display->drawRoundRect(SYNC_BTN_X, SYNC_BTN_Y, SYNC_BTN_W, SYNC_BTN_H,6, WHITE);
   display->setTextColor(BLACK, fillColor);
   display->setTextSize(3);
   display->setCursor(SYNC_BTN_X + 60, SYNC_BTN_Y + 20);
@@ -629,9 +631,9 @@ void drawSingleButton(int i) {
   int col = i % 8, row = i / 8;
   int x = 20 + (col * 95), y = 60 + (row * 80);
   uint16_t color = relayState[i] ? GREEN : RED;
-  display->fillRect(x, y, 80, 60, color);
-  display->drawRect(x, y, 80, 60, WHITE);
-  display->setTextColor(BLACK, color);
+  display->fillRoundRect(x, y, 80, 60, 6, color);
+  display->drawRoundRect(x, y, 80, 60, 6, LTGRAY);
+  display->setTextColor(BLACK);
   display->setTextSize(2);
   display->setCursor((i + 1 < 10) ? x + 28 : x + 22, y + 22);
   display->printf("R%d", i + 1);
