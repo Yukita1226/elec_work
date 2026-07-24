@@ -6,6 +6,9 @@
 #include "data.h"             
 #include "html.h"
 
+// need real time data 
+// make bone look like more  realistic
+
 const char* ap_ssid = "KneeMonitor";
 
 WebServer  server(80);
