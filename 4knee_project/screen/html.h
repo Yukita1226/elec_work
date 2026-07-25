@@ -226,6 +226,7 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
   <div class="chead">
    <h3 id="chTitle">Load over time</h3>
    <div class="cbtns">
+    <button class="cbtn" id="btnType"  onclick="toggleType()">Line</button>
     <button class="cbtn" id="btnPause" onclick="togglePause()">Pause</button>
     <button class="cbtn" id="btnClear" onclick="clearHist()">Clear</button>
    </div>
@@ -263,15 +264,22 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
 <script>
 const LOAD_WARN=20000, LOAD_DANGER=35000;
 const T={
- 0:{title:"จอวัดน้ำหนักลงเข่า",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",pause:"หยุด",resume:"เล่นต่อ",clear:"ล้าง",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง"},
- 1:{title:"Knee Load Monitor",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",pause:"Pause",resume:"Resume",clear:"Clear",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert"}
+ 0:{title:"จอวัดน้ำหนักลงเข่า",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",pause:"หยุด",resume:"เล่นต่อ",clear:"ล้าง",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง"},
+ 1:{title:"Knee Load Monitor",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",pause:"Pause",resume:"Resume",clear:"Clear",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar"}
 };
 const UNITS=[{f:1,s:"g",d:0},{f:0.00980665,s:"N",d:1},{f:0.001,s:"kg",d:2}];
-let cur={theme:1,lang:1,metric:0,auto:true};
+let cur={theme:1,lang:1,metric:0,auto:true,gtype:0};   /* FIX: gtype added */
 
   // Indented below to avoid Arduino C++ preprocessor bugs
   const HIST=120;
   let hist=[[],[],[],[]], paused=false, mat=0;
+
+  /* FIX: window.status already exists as a string, so the implicit
+     id-global never binds. Must look it up by hand. */
+  const statusEl=document.getElementById("status");
+
+  let lastLang=-1;   /* FIX: skip redundant text rewrites */
+  let busy=false;    /* FIX: stop overlapping polls */
 
   try{mat=parseInt(localStorage.getItem("kneeMat")||"0",10)||0;}catch(e){}
 
@@ -279,7 +287,7 @@ let cur={theme:1,lang:1,metric:0,auto:true};
    try{localStorage.setItem("kneeMat",mat);}catch(e){}}
   function applyTheme(){let t=cur.theme;if(cur.auto){const h=new Date().getHours();t=(h>=7&&h<19)?0:1;}
    document.body.classList.toggle("light",t===0);document.body.classList.toggle("poly",mat===1);}
-  function applyLang(){const t=T[cur.lang];
+  function applyLang(){if(cur.lang===lastLang)return;lastLang=cur.lang;const t=T[cur.lang];
    title.textContent=t.title;setTitle.textContent=t.settings;lblTheme.textContent=t.theme;lblAuto.textContent=t.auto;
    lblLang.textContent=t.lang;lblUnit.textContent=t.unit;btnSave.textContent=t.save;
    lblMat.firstChild.nodeValue=t.mat;lblMatSub.textContent=t.matsub;
@@ -287,13 +295,15 @@ let cur={theme:1,lang:1,metric:0,auto:true};
    oriT.textContent=t.ant;oriB.textContent=t.post;oriL.textContent=t.lat;oriR.textContent=t.med;
    copnote.textContent=t.cop;chTitle.textContent=t.chart;
    btnPause.textContent=paused?t.resume:t.pause;btnClear.textContent=t.clear;}
+  function applyType(){const t=T[cur.lang];btnType.textContent=cur.gtype?t.bar:t.line;}   /* FIX */
 
   function rawColor(v){const cs=getComputedStyle(document.body);
    return cs.getPropertyValue(v>=LOAD_DANGER?"--danger":(v>=LOAD_WARN?"--warn":"--accent")).trim();}
 
   function render(d){
    const t=T[cur.lang],u=UNITS[cur.metric];
-   status.textContent=d.connected?t.on:t.off;status.className="status "+(d.connected?"on":"off");
+   statusEl.textContent=d.connected?t.on:t.off;                        /* FIX */
+   statusEl.className="status "+(d.connected?"on":"off");              /* FIX */
    const w=d.k;
 
    for(let i=0;i<4;i++){
@@ -353,33 +363,48 @@ let cur={theme:1,lang:1,metric:0,auto:true};
     ctx.beginPath();ctx.moveTo(pl,y+.5);ctx.lineTo(pl+pw,y+.5);ctx.stroke();ctx.restore();
    });
 
-   for(let i=0;i<4;i++){
-    const a=hist[i];if(a.length<2)continue;
-    ctx.beginPath();ctx.lineWidth=2;ctx.lineJoin="round";ctx.strokeStyle=cols[i];
-    for(let j=0;j<a.length;j++){
-     const x=pl+pw*(j+HIST-a.length)/(HIST-1);
-     const y=pt+ph-ph*Math.min(a[j],top)/top;
-     j?ctx.lineTo(x,y):ctx.moveTo(x,y);
+   if(cur.gtype===1){                                                  /* FIX: bar mode */
+    const gap=12,bw=(pw-gap*5)/4,names=["AL","AM","PL","PM"];
+    ctx.textAlign="center";
+    for(let i=0;i<4;i++){
+     const a=hist[i],v=a.length?a[a.length-1]:0;
+     const bh=ph*Math.min(v,top)/top,x=pl+gap+i*(bw+gap),y=pt+ph-bh;
+     ctx.fillStyle=cols[i];ctx.fillRect(x,y,bw,Math.max(bh,1));
+     ctx.fillStyle=cMuted;ctx.fillText(names[i],x+bw/2,h-4);
     }
-    ctx.stroke();
-    const ly=pt+ph-ph*Math.min(a[a.length-1],top)/top;
-    ctx.fillStyle=cols[i];ctx.beginPath();ctx.arc(pl+pw,ly,2.6,0,6.29);ctx.fill();
+   }else{
+    for(let i=0;i<4;i++){
+     const a=hist[i];if(a.length<2)continue;
+     ctx.beginPath();ctx.lineWidth=2;ctx.lineJoin="round";ctx.strokeStyle=cols[i];
+     for(let j=0;j<a.length;j++){
+      const x=pl+pw*(j+HIST-a.length)/(HIST-1);
+      const y=pt+ph-ph*Math.min(a[j],top)/top;
+      j?ctx.lineTo(x,y):ctx.moveTo(x,y);
+     }
+     ctx.stroke();
+     const ly=pt+ph-ph*Math.min(a[a.length-1],top)/top;
+     ctx.fillStyle=cols[i];ctx.beginPath();ctx.arc(pl+pw,ly,2.6,0,6.29);ctx.fill();
+    }
+    ctx.textAlign="left";ctx.fillStyle=cMuted;
+    ctx.fillText("-"+((HIST*0.5)|0)+"s",pl+1,h-4);
+    ctx.textAlign="right";ctx.fillText("now",pl+pw,h-4);
    }
 
-   ctx.textAlign="left";ctx.fillStyle=cMuted;
-   ctx.fillText("-"+((HIST*0.5)|0)+"s",pl+1,h-4);
-   ctx.textAlign="right";ctx.fillText("now",pl+pw,h-4);
-   ctx.textAlign="left";ctx.fillText(u.s,pl-40,pt+7);
+   ctx.textAlign="left";ctx.fillStyle=cMuted;ctx.fillText(u.s,pl-40,pt+7);
   }
 
   function togglePause(){paused=!paused;const t=T[cur.lang];
    btnPause.textContent=paused?t.resume:t.pause;btnPause.classList.toggle("active",paused);}
   function clearHist(){hist=[[],[],[],[]];drawChart();}
+  function toggleType(){cur.gtype=cur.gtype?0:1;applyType();drawChart();   /* FIX */
+   fetch("/set?graphtype="+cur.gtype).catch(function(){});}
 
   async function poll(){
+   if(busy)return;busy=true;                                            /* FIX */
    try{const d=await (await fetch("/data")).json();
-    cur.theme=d.theme;cur.lang=d.lang;cur.metric=d.metric;cur.auto=d.auto;
-    applyTheme();applyLang();render(d);}catch(e){}
+    cur.theme=d.theme;cur.lang=d.lang;cur.metric=d.metric;cur.auto=d.auto;cur.gtype=d.graphtype;
+    applyTheme();applyLang();applyType();render(d);}catch(e){}
+   busy=false;
   }
   function openPanel(){selTheme.value=cur.theme;selLang.value=cur.lang;selMetric.value=cur.metric;
    chkAuto.checked=cur.auto;selMat.value=mat;panel.classList.add("open");}
@@ -388,7 +413,7 @@ let cur={theme:1,lang:1,metric:0,auto:true};
    await fetch("/set?"+q);panel.classList.remove("open");poll();}
   window.addEventListener("resize",drawChart);
 
-applyMat(mat);setInterval(poll,500);poll();
+applyMat(mat);applyType();setInterval(poll,500);poll();
 </script>
 </body></html>
 )HTML";

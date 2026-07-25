@@ -1,7 +1,7 @@
 #pragma once
 #define SETTING
 
-struct Recive_data { // weigth  from joint divide into 4 area
+struct Recive_data { 
 
   float knee1;
   float knee2;
@@ -13,6 +13,9 @@ struct Recive_data { // weigth  from joint divide into 4 area
 enum  Theme     { light, dark };
 enum  Language  { thai, english };
 enum  Modify    { gram, newton, kilogram };
+enum  Type      { line, bar };
+
+
 
 struct Setting_data {
   Theme    theme    = dark;      
@@ -20,4 +23,9 @@ struct Setting_data {
   Modify   metric   = gram; 
 
   bool     isauto   = true;
+};
+
+struct Graph_data {
+  Theme    theme    = dark;  
+  Type     type     = line;
 };

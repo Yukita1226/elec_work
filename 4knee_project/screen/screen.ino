@@ -17,7 +17,8 @@ Preferences prefs;
 const byte DNS_PORT = 53;
 
 Recive_data  knee;             
-Setting_data settings;        
+Setting_data settings;    
+Graph_data graph;    
 
 volatile unsigned long lastRecvTime = 0;
 const unsigned long TIMEOUT_MS = 3000;
@@ -32,12 +33,26 @@ void loadSettings() {
   prefs.end();
 }
 
+void loadgraph() {
+  prefs.begin("knee", true);
+  graph.theme       = (Theme)   prefs.getUChar("gtheme", dark);
+  graph.type        = (Type)    prefs.getUChar("gtype",  line);
+  prefs.end();
+}
+
 void saveSettings() {
   prefs.begin("knee", false);
   prefs.putUChar("theme",  settings.theme);
   prefs.putUChar("lang",   settings.language);
   prefs.putUChar("metric", settings.metric);
   prefs.putBool ("auto",   settings.isauto);
+  prefs.end();
+}
+
+void savegraph() {
+  prefs.begin("knee", false);
+  prefs.putUChar("gtheme", graph.theme);
+  prefs.putUChar("gtype",  graph.type);
   prefs.end();
 }
 
@@ -64,21 +79,26 @@ void handleData() {
   String j = "{";
   j += "\"k\":[" + String(knee.knee1,2) + "," + String(knee.knee2,2) + ","
                  + String(knee.knee3,2) + "," + String(knee.knee4,2) + "],";
-  j += "\"connected\":" + String(isConnected() ? "true" : "false") + ",";
-  j += "\"theme\":"  + String((int)settings.theme)    + ",";
-  j += "\"lang\":"   + String((int)settings.language) + ",";
-  j += "\"metric\":" + String((int)settings.metric)   + ",";
-  j += "\"auto\":"   + String(settings.isauto ? "true" : "false");
+  j += "\"connected\":"  + String(isConnected() ? "true" : "false")     + ",";
+  j += "\"theme\":"      + String((int)settings.theme)                  + ",";
+  j += "\"lang\":"       + String((int)settings.language)               + ",";
+  j += "\"metric\":"     + String((int)settings.metric)                 + ",";
+  j += "\"auto\":"       + String(settings.isauto ? "true" : "false")   + ",";
+  j += "\"graphtheme\":" + String((int)graph.theme)                     + ",";
+  j += "\"graphtype\":"  + String((int)graph.type);
   j += "}";
   server.send(200, "application/json", j);
 }
 
 void handleSet() {
-  if (server.hasArg("theme"))  settings.theme    = (Theme)   server.arg("theme").toInt();
-  if (server.hasArg("lang"))   settings.language = (Language)server.arg("lang").toInt();
-  if (server.hasArg("metric")) settings.metric   = (Modify)  server.arg("metric").toInt();
-  if (server.hasArg("auto"))   settings.isauto   = (server.arg("auto").toInt() != 0);
+  if (server.hasArg("theme"))      settings.theme    = (Theme)   server.arg("theme").toInt();
+  if (server.hasArg("lang"))       settings.language = (Language)server.arg("lang").toInt();
+  if (server.hasArg("metric"))     settings.metric   = (Modify)  server.arg("metric").toInt();
+  if (server.hasArg("auto"))       settings.isauto   = (server.arg("auto").toInt() != 0);
+  if (server.hasArg("graphtheme")) graph.theme       = (Theme)   server.arg("graphtheme").toInt();
+  if (server.hasArg("graphtype"))  graph.type        = (Type)    server.arg("graphtype").toInt();
   saveSettings();
+  savegraph();
   server.send(200, "application/json", "{\"ok\":true}");
 }
 
@@ -91,6 +111,7 @@ void setup() {
   Serial.begin(115200);
 
   loadSettings();
+  loadgraph();
 
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(ap_ssid, NULL, 1);
