@@ -6,7 +6,6 @@ const char PAGE[] = R"HTML(
 <title>Knee Monitor</title>
 <style>
 :root{--bg:#0b0f14;--surface:#141a21;--surface2:#1b222b;--border:#2a323d;--text:#e6edf3;--muted:#8b949e;--accent:#34d399;--warn:#f0a020;--danger:#f85149;--accent-soft:rgba(52,211,153,.15);--danger-soft:rgba(248,81,73,.15);--c0:#22d3ee;--c1:#fbbf24;--c2:#a78bfa;--c3:#34d399;
-/* bone material */
 --b1:#fbf4e7;--b2:#eaddc4;--b3:#d5c0a0;--b4:#a98b60;--b5:#8a7047;--bink:#4a3a22;--gloss:.22;--mott:.38;}
 body.light{--bg:#f2f4f7;--surface:#fff;--surface2:#f7f9fb;--border:#d0d7de;--text:#1f2328;--muted:#5c6773;--accent:#059669;--warn:#c77700;--danger:#cf222e;--accent-soft:rgba(5,150,105,.12);--danger-soft:rgba(207,34,46,.1);--c0:#0891b2;--c1:#b45309;--c2:#7c3aed;--c3:#059669;}
 body.poly{--b1:#fffde8;--b2:#f6ee46;--b3:#ddd400;--b4:#9e9800;--b5:#6f6b00;--bink:#3a3800;--gloss:.55;--mott:.12;}
@@ -25,7 +24,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans T
 .status.on::before{animation:pulse 1.6s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* ---------- insert view ---------- */
 .canvas{position:relative;width:min(94vw,470px);aspect-ratio:320/250;margin:4px auto 0;}
 .canvas svg.knee{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
 .ori{position:absolute;font-size:.58rem;letter-spacing:1.6px;color:var(--muted);font-weight:600;}
@@ -38,7 +36,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans T
 .dot::after{content:"";position:absolute;inset:-8px;border:2px solid rgba(34,211,238,.4);border-radius:50%;}
 .copnote{text-align:center;font-size:.63rem;color:var(--muted);letter-spacing:1px;margin-top:12px;}
 
-/* svg typography */
 .big{font-weight:700;font-size:30px;font-variant-numeric:tabular-nums;paint-order:stroke;stroke:rgba(0,0,0,.45);stroke-width:3px;stroke-linejoin:round;}
 .unit{font-size:10px;font-weight:600;letter-spacing:2px;fill:var(--bink);opacity:.75;}
 .small{font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;paint-order:stroke;stroke:rgba(0,0,0,.35);stroke-width:2.5px;stroke-linejoin:round;}
@@ -47,7 +44,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans T
  #specA,#specB,#specC{opacity:var(--gloss);}
  #mottle{opacity:var(--mott);}
 
-/* ---------- chart ---------- */
 .chartcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 12px 10px;margin-top:12px;}
 .chead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
 .chead h3{font-size:.8rem;font-weight:600;letter-spacing:.3px;}
@@ -61,7 +57,6 @@ canvas{width:100%;height:176px;display:block;}
 .lg i{width:9px;height:3px;border-radius:2px;}
 .lg span{font-size:.82rem;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
 
-/* ---------- settings ---------- */
 .panel{position:fixed;inset:0;background:var(--bg);z-index:10;display:flex;flex-direction:column;padding:20px 16px;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
 .panel.open{transform:translateY(0);}
 .phead{display:flex;align-items:center;justify-content:space-between;max-width:460px;width:100%;margin:0 auto 4px;}
@@ -82,6 +77,14 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
 .save{margin-top:22px;width:100%;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:1rem;font-weight:600;cursor:pointer;}
 .save:active{transform:scale(.98);}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+
+.dbtn{flex:1;padding:13px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:.85rem;font-weight:600;cursor:pointer;}
+.dbtn.danger{border-color:var(--danger);color:var(--danger);}
+.dbtn:active{transform:scale(.97);}
+.seclabel{font-size:.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;padding:18px 2px 2px;}
+.rangebtns{display:flex;gap:6px;margin-bottom:8px;}
+.rbtn{flex:1;border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:8px;padding:6px 0;font-size:.7rem;font-weight:600;cursor:pointer;}
+.rbtn.active{color:var(--accent);border-color:var(--accent);}
 </style></head><body>
 
 <div class="wrap">
@@ -132,20 +135,15 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
     <clipPath id="clipDishM"><ellipse cx="228" cy="122" rx="52" ry="62"/></clipPath>
    </defs>
 
-   <!-- cast shadow -->
    <use href="#pOut" xlink:href="#pOut" fill="#000" opacity=".45" transform="translate(4,10)" filter="url(#fDrop)"/>
-
-   <!-- bevelled outer edge, then top surface inset slightly -->
    <use href="#pOut" xlink:href="#pOut" fill="url(#gEdge)"/>
    <g transform="translate(160,124) scale(.965) translate(-160,-124)">
     <use href="#pOut" xlink:href="#pOut" fill="url(#gBody)"/>
    </g>
 
    <g clip-path="url(#clipBody)">
-    <!-- porous mottling -->
     <rect id="mottle" x="0" y="0" width="320" height="250" fill="#e6d3b4" filter="url(#fGrain)"/>
 
-    <!-- lateral dish (left) -->
     <ellipse cx="92" cy="122" rx="52" ry="62" fill="url(#gDish)"/>
     <g clip-path="url(#clipDishL)">
      <ellipse cx="92" cy="122" rx="52" ry="62" fill="none" stroke="#6d5837" stroke-width="14" opacity=".45" filter="url(#fBlur6)"/>
@@ -159,7 +157,6 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
     <ellipse id="heatL" cx="92" cy="122" rx="52" ry="62" fill="#f85149" opacity="0"/>
     <ellipse cx="92" cy="122" rx="52" ry="62" fill="none" stroke="#fff" stroke-width="2" opacity=".22"/>
 
-    <!-- medial dish (right) -->
     <ellipse cx="228" cy="122" rx="52" ry="62" fill="url(#gDish)"/>
     <g clip-path="url(#clipDishM)">
      <ellipse cx="228" cy="122" rx="52" ry="62" fill="none" stroke="#6d5837" stroke-width="14" opacity=".45" filter="url(#fBlur6)"/>
@@ -173,25 +170,20 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
     <ellipse id="heatM" cx="228" cy="122" rx="52" ry="62" fill="#f85149" opacity="0"/>
     <ellipse cx="228" cy="122" rx="52" ry="62" fill="none" stroke="#fff" stroke-width="2" opacity=".22"/>
 
-    <!-- central eminence between the dishes -->
     <path d="M150 44 C143 78 143 120 152 148 C157 162 163 162 168 148 C177 120 177 78 170 44 Z"
           fill="url(#gEdge)" opacity=".9"/>
     <path d="M154 52 C148 84 148 120 156 146" fill="none" stroke="#fff" stroke-width="2.6" opacity=".38"/>
     <path d="M166 52 C172 84 172 120 164 146" fill="none" stroke="#000" stroke-width="2" opacity=".18"/>
 
-    <!-- gloss highlights -->
     <ellipse id="specA" cx="86" cy="52" rx="46" ry="15" fill="url(#gSpec)" transform="rotate(-13 86 52)" filter="url(#fBlur3)"/>
     <ellipse id="specB" cx="238" cy="54" rx="42" ry="13" fill="url(#gSpec)" transform="rotate(11 238 54)" filter="url(#fBlur3)"/>
     <ellipse id="specC" cx="60" cy="150" rx="10" ry="52" fill="url(#gSpec)" transform="rotate(6 60 150)" filter="url(#fBlur6)"/>
 
-    <!-- vignette -->
     <rect x="0" y="0" width="320" height="250" fill="url(#gVig)"/>
    </g>
 
-   <!-- crisp outline over everything -->
    <use href="#pOut" xlink:href="#pOut" fill="none" stroke="#8a7047" style="stroke:var(--b5)" stroke-width="2.2"/>
 
-   <!-- sensor pads + readouts -->
    <g id="pads">
     <circle id="p0" cx="92"  cy="84"  r="6.5" fill="#34d399" stroke="rgba(0,0,0,.55)" stroke-width="2"/>
     <circle id="p1" cx="228" cy="84"  r="6.5" fill="#34d399" stroke="rgba(0,0,0,.55)" stroke-width="2"/>
@@ -231,6 +223,12 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
     <button class="cbtn" id="btnClear" onclick="clearHist()">Clear</button>
    </div>
   </div>
+  <div class="rangebtns">
+   <button class="rbtn active" data-r="0" onclick="setView(0)">Live</button>
+   <button class="rbtn" data-r="1" onclick="setView(1)">1W</button>
+   <button class="rbtn" data-r="2" onclick="setView(2)">1M</button>
+   <button class="rbtn" data-r="3" onclick="setView(3)">1Y</button>
+  </div>
   <canvas id="chart"></canvas>
   <div class="legend">
    <div class="lg"><b><i style="background:var(--c0)"></i>AL</b><span id="lv0">0</span></div>
@@ -257,6 +255,20 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
    <select id="selMetric"><option value="0">Gram (g)</option><option value="1">Newton (N)</option><option value="2">Kilogram (kg)</option></select></div>
   <div class="row"><span class="rlabel" id="lblMat">Material<small id="lblMatSub">Stored on this phone only</small></span>
    <select id="selMat" onchange="applyMat(this.value)"><option value="0">Bone</option><option value="1">Trial insert</option></select></div>
+
+  <div class="seclabel" id="lblData">Data</div>
+  <div class="row"><span class="rlabel" id="lblKeep">Auto-clear<small id="lblKeepSub">Old data is removed automatically</small></span>
+   <select id="selKeep" onchange="setKeep(this.value)">
+    <option value="0">Off</option>
+    <option value="1">1 week</option>
+    <option value="2">1 month</option>
+    <option value="3">1 year</option>
+   </select></div>
+  <div class="row" style="border-bottom:none;gap:10px">
+   <button class="dbtn" id="btnDownload" onclick="downloadCsv()">Download CSV</button>
+   <button class="dbtn danger" id="btnDelete" onclick="deleteCsv()">Delete all</button>
+  </div>
+
   <button class="save" id="btnSave" onclick="saveAndClose()">Save &amp; Close</button>
  </div>
 </div>
@@ -264,22 +276,19 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
 <script>
 const LOAD_WARN=20000, LOAD_DANGER=35000;
 const T={
- 0:{title:"จอวัดน้ำหนักลงเข่า",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",pause:"หยุด",resume:"เล่นต่อ",clear:"ล้าง",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง"},
- 1:{title:"Knee Load Monitor",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",pause:"Pause",resume:"Resume",clear:"Clear",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar"}
+ 0:{title:"จอวัดน้ำหนักลงเข่า",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",pause:"หยุด",resume:"เล่นต่อ",clear:"ล้าง",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง",nosync:"ยังไม่ได้ซิงค์เวลา",nodata:"ไม่มีข้อมูล",data:"ข้อมูล",keep:"ล้างอัตโนมัติ",keepsub:"ลบข้อมูลเก่าโดยอัตโนมัติ",dl:"ดาวน์โหลด CSV",del:"ลบทั้งหมด",confirmDel:"ลบข้อมูลทั้งหมด?"},
+ 1:{title:"Knee Load Monitor",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",pause:"Pause",resume:"Resume",clear:"Clear",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar",nosync:"No time sync yet",nodata:"No data",data:"Data",keep:"Auto-clear",keepsub:"Old data is removed automatically",dl:"Download CSV",del:"Delete all",confirmDel:"Delete all data?"}
 };
 const UNITS=[{f:1,s:"g",d:0},{f:0.00980665,s:"N",d:1},{f:0.001,s:"kg",d:2}];
-let cur={theme:1,lang:1,metric:0,auto:true,gtype:0};   /* FIX: gtype added */
+let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
 
-  // Indented below to avoid Arduino C++ preprocessor bugs
   const HIST=120;
   let hist=[[],[],[],[]], paused=false, mat=0;
-
-  /* FIX: window.status already exists as a string, so the implicit
-     id-global never binds. Must look it up by hand. */
+  let view=0;
+  let histView=[[],[],[],[]];
+  let histMsg="";
   const statusEl=document.getElementById("status");
-
-  let lastLang=-1;   /* FIX: skip redundant text rewrites */
-  let busy=false;    /* FIX: stop overlapping polls */
+  let lastLang=-1, busy=false;
 
   try{mat=parseInt(localStorage.getItem("kneeMat")||"0",10)||0;}catch(e){}
 
@@ -294,26 +303,40 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0};   /* FIX: gtype added */
    selMat.options[0].text=t.m0;selMat.options[1].text=t.m1;
    oriT.textContent=t.ant;oriB.textContent=t.post;oriL.textContent=t.lat;oriR.textContent=t.med;
    copnote.textContent=t.cop;chTitle.textContent=t.chart;
-   btnPause.textContent=paused?t.resume:t.pause;btnClear.textContent=t.clear;}
-  function applyType(){const t=T[cur.lang];btnType.textContent=cur.gtype?t.bar:t.line;}   /* FIX */
+   btnPause.textContent=paused?t.resume:t.pause;btnClear.textContent=t.clear;
+   lblData.textContent=t.data;lblKeep.firstChild.nodeValue=t.keep;lblKeepSub.textContent=t.keepsub;
+   btnDownload.textContent=t.dl;btnDelete.textContent=t.del;}
+  function applyType(){const t=T[cur.lang];btnType.textContent=cur.gtype?t.bar:t.line;}
 
   function rawColor(v){const cs=getComputedStyle(document.body);
    return cs.getPropertyValue(v>=LOAD_DANGER?"--danger":(v>=LOAD_WARN?"--warn":"--accent")).trim();}
 
+  function setView(v){view=v;
+   document.querySelectorAll(".rbtn").forEach(function(b){b.classList.toggle("active",parseInt(b.dataset.r,10)===v);});
+   histMsg="";
+   if(v===0){drawChart();}else{fetchHistory();}}
+
+  async function fetchHistory(){
+   const map={1:"w",2:"m",3:"y"};
+   try{const d=await (await fetch("/history?r="+map[view])).json();
+    if(d.err){histMsg=d.err==="notime"?T[cur.lang].nosync:T[cur.lang].nodata;histView=[[],[],[],[]];drawChart();return;}
+    histView=d.k;
+    let any=false;for(let i=0;i<4;i++)for(const v of histView[i])if(v>=0){any=true;break;}
+    histMsg=any?"":T[cur.lang].nodata;
+    drawChart();
+   }catch(e){histMsg=T[cur.lang].nodata;drawChart();}}
+
   function render(d){
    const t=T[cur.lang],u=UNITS[cur.metric];
-   statusEl.textContent=d.connected?t.on:t.off;                        /* FIX */
-   statusEl.className="status "+(d.connected?"on":"off");              /* FIX */
+   statusEl.textContent=d.connected?t.on:t.off;
+   statusEl.className="status "+(d.connected?"on":"off");
    const w=d.k;
-
    for(let i=0;i<4;i++){
     const c=rawColor(w[i]),txt=(w[i]*u.f).toFixed(u.d);
     const s=document.getElementById("s"+i);s.textContent=txt;s.setAttribute("fill",c);
     document.getElementById("p"+i).setAttribute("fill",c);
     document.getElementById("lv"+i).textContent=txt;
    }
-
-   // compartment totals: lateral = AL+PL, medial = AM+PM
    const lat=w[0]+w[2], med=w[1]+w[3];
    bigL.textContent=(lat*u.f).toFixed(u.d);bigL.setAttribute("fill",rawColor(lat/2));
    bigM.textContent=(med*u.f).toFixed(u.d);bigM.setAttribute("fill",rawColor(med/2));
@@ -321,14 +344,11 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0};   /* FIX: gtype added */
    const full=LOAD_DANGER*2;
    heatL.setAttribute("opacity",Math.min(.45,lat/full*.8).toFixed(3));
    heatM.setAttribute("opacity",Math.min(.45,med/full*.8).toFixed(3));
-
-   // center of load
    const tot=w[0]+w[1]+w[2]+w[3];let nx=0,ny=0;
    if(tot>0){nx=(-w[0]+w[1]-w[2]+w[3])/tot;ny=(-w[0]-w[1]+w[2]+w[3])/tot;}
    dot.style.left=(50+nx*40)+"%";dot.style.top=(50+ny*34)+"%";
-
    if(!paused){for(let i=0;i<4;i++){hist[i].push(w[i]);if(hist[i].length>HIST)hist[i].shift();}}
-   drawChart();
+   if(view===0)drawChart();
   }
 
   function niceMax(v){if(v<=0)return 1;const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;
@@ -346,7 +366,15 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0};   /* FIX: gtype added */
    const u=UNITS[cur.metric];
    const pl=46,pr=6,pt=8,pb=16,pw=w-pl-pr,ph=h-pt-pb;
 
-   let mx=0;for(let i=0;i<4;i++)for(const v of hist[i])if(v>mx)mx=v;
+   const live=(view===0);
+   const data=live?hist:histView;
+   const NP=live?HIST:120;
+
+   if(!live && histMsg){
+    ctx.fillStyle=cMuted;ctx.font="12px -apple-system,Segoe UI,Roboto,sans-serif";
+    ctx.textAlign="center";ctx.fillText(histMsg,w/2,h/2);return;}
+
+   let mx=0;for(let i=0;i<4;i++)for(const v of data[i])if(v>mx)mx=v;
    const top=niceMax(Math.max(mx*1.15,LOAD_WARN*0.6));
 
    ctx.font="10px -apple-system,Segoe UI,Roboto,sans-serif";ctx.fillStyle=cMuted;ctx.textAlign="right";
@@ -356,63 +384,69 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0};   /* FIX: gtype added */
     ctx.globalAlpha=.6;ctx.beginPath();ctx.moveTo(pl,y+.5);ctx.lineTo(pl+pw,y+.5);ctx.stroke();ctx.globalAlpha=1;
     ctx.fillText((top*g/4*u.f).toFixed(u.d),pl-6,y+3.5);
    }
-
-   [[LOAD_WARN,cs.getPropertyValue("--warn").trim()],[LOAD_DANGER,cs.getPropertyValue("--danger").trim()]].forEach(function(t){
-    if(t[0]>top)return;const y=pt+ph-ph*t[0]/top;
-    ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle=t[1];ctx.globalAlpha=.55;
+   [[LOAD_WARN,cs.getPropertyValue("--warn").trim()],[LOAD_DANGER,cs.getPropertyValue("--danger").trim()]].forEach(function(tr){
+    if(tr[0]>top)return;const y=pt+ph-ph*tr[0]/top;
+    ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle=tr[1];ctx.globalAlpha=.55;
     ctx.beginPath();ctx.moveTo(pl,y+.5);ctx.lineTo(pl+pw,y+.5);ctx.stroke();ctx.restore();
    });
 
-   if(cur.gtype===1){                                                  /* FIX: bar mode */
+   function xAt(j,len){return live?pl+pw*(j+HIST-len)/(HIST-1):pl+pw*j/(NP-1);}
+
+   if(cur.gtype===1){
     const gap=12,bw=(pw-gap*5)/4,names=["AL","AM","PL","PM"];
     ctx.textAlign="center";
     for(let i=0;i<4;i++){
-     const a=hist[i],v=a.length?a[a.length-1]:0;
+     const a=data[i];let v=0;for(let k=a.length-1;k>=0;k--){if(a[k]>=0){v=a[k];break;}}
      const bh=ph*Math.min(v,top)/top,x=pl+gap+i*(bw+gap),y=pt+ph-bh;
      ctx.fillStyle=cols[i];ctx.fillRect(x,y,bw,Math.max(bh,1));
      ctx.fillStyle=cMuted;ctx.fillText(names[i],x+bw/2,h-4);
     }
    }else{
     for(let i=0;i<4;i++){
-     const a=hist[i];if(a.length<2)continue;
-     ctx.beginPath();ctx.lineWidth=2;ctx.lineJoin="round";ctx.strokeStyle=cols[i];
+     const a=data[i];if(a.length<2)continue;
+     ctx.lineWidth=2;ctx.lineJoin="round";ctx.strokeStyle=cols[i];ctx.beginPath();
+     let pen=false,lx=0,ly=0;
      for(let j=0;j<a.length;j++){
-      const x=pl+pw*(j+HIST-a.length)/(HIST-1);
-      const y=pt+ph-ph*Math.min(a[j],top)/top;
-      j?ctx.lineTo(x,y):ctx.moveTo(x,y);
+      if(a[j]<0){pen=false;continue;}
+      const x=xAt(j,a.length),y=pt+ph-ph*Math.min(a[j],top)/top;
+      pen?ctx.lineTo(x,y):ctx.moveTo(x,y);pen=true;lx=x;ly=y;
      }
      ctx.stroke();
-     const ly=pt+ph-ph*Math.min(a[a.length-1],top)/top;
-     ctx.fillStyle=cols[i];ctx.beginPath();ctx.arc(pl+pw,ly,2.6,0,6.29);ctx.fill();
+     if(pen){ctx.fillStyle=cols[i];ctx.beginPath();ctx.arc(lx,ly,2.6,0,6.29);ctx.fill();}
     }
-    ctx.textAlign="left";ctx.fillStyle=cMuted;
-    ctx.fillText("-"+((HIST*0.5)|0)+"s",pl+1,h-4);
+    ctx.fillStyle=cMuted;ctx.textAlign="left";
+    const lbl=live?("-"+((HIST*0.5)|0)+"s"):(view===1?"-7d":view===2?"-30d":"-1y");
+    ctx.fillText(lbl,pl+1,h-4);
     ctx.textAlign="right";ctx.fillText("now",pl+pw,h-4);
    }
-
    ctx.textAlign="left";ctx.fillStyle=cMuted;ctx.fillText(u.s,pl-40,pt+7);
   }
 
   function togglePause(){paused=!paused;const t=T[cur.lang];
    btnPause.textContent=paused?t.resume:t.pause;btnPause.classList.toggle("active",paused);}
-  function clearHist(){hist=[[],[],[],[]];drawChart();}
-  function toggleType(){cur.gtype=cur.gtype?0:1;applyType();drawChart();   /* FIX */
+  function clearHist(){if(view===0){hist=[[],[],[],[]];}drawChart();}
+  function toggleType(){cur.gtype=cur.gtype?0:1;applyType();drawChart();
    fetch("/set?graphtype="+cur.gtype).catch(function(){});}
 
+  function downloadCsv(){window.location.href="/download";}
+  function deleteCsv(){if(confirm(T[cur.lang].confirmDel)){fetch("/clear").then(function(){clearHist();});}}
+  function setKeep(v){cur.keep=parseInt(v,10)||0;fetch("/set?keep="+cur.keep).catch(function(){});}
+
   async function poll(){
-   if(busy)return;busy=true;                                            /* FIX */
+   if(busy)return;busy=true;
    try{const d=await (await fetch("/data")).json();
-    cur.theme=d.theme;cur.lang=d.lang;cur.metric=d.metric;cur.auto=d.auto;cur.gtype=d.graphtype;
+    cur.theme=d.theme;cur.lang=d.lang;cur.metric=d.metric;cur.auto=d.auto;cur.gtype=d.graphtype;cur.keep=d.keep;
     applyTheme();applyLang();applyType();render(d);}catch(e){}
    busy=false;
   }
   function openPanel(){selTheme.value=cur.theme;selLang.value=cur.lang;selMetric.value=cur.metric;
-   chkAuto.checked=cur.auto;selMat.value=mat;panel.classList.add("open");}
+   chkAuto.checked=cur.auto;selMat.value=mat;selKeep.value=cur.keep;panel.classList.add("open");}
   function closePanel(){panel.classList.remove("open");}
   async function saveAndClose(){const q="theme="+selTheme.value+"&lang="+selLang.value+"&metric="+selMetric.value+"&auto="+(chkAuto.checked?1:0);
    await fetch("/set?"+q);panel.classList.remove("open");poll();}
   window.addEventListener("resize",drawChart);
 
+  fetch("/time?t="+Math.floor(Date.now()/1000)).catch(function(){});
 applyMat(mat);applyType();setInterval(poll,500);poll();
 </script>
 </body></html>
