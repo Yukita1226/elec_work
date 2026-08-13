@@ -27,9 +27,9 @@ const unsigned long TIMEOUT_MS   = 3000;
 unsigned long       lastLog      = 0;
 const unsigned long LOG_INTERVAL = 1000;
 
-uint8_t             keepMode     = 0;              // 0 off, 1 week, 2 month, 3 year
+uint8_t             keepMode     = 0;             
 unsigned long       lastPurge    = 0;
-const unsigned long PURGE_INTERVAL = 86400000UL;   // 24 ชม.
+const unsigned long PURGE_INTERVAL = 86400000UL;  
 bool                purgedOnce   = false;
 
 
@@ -38,11 +38,11 @@ uint32_t nowEpoch() {
   return bootEpoch + (millis() / 1000);
 }
 
-uint32_t keepSeconds() {
+uint32_t keepSeconds() { // week , month , year
   switch (keepMode) {
-    case 1: return 604800UL;    // 7 วัน
-    case 2: return 2592000UL;   // 30 วัน
-    case 3: return 31536000UL;  // 365 วัน
+    case 1: return 604800UL;   
+    case 2: return 2592000UL;  
+    case 3: return 31536000UL;  
     default: return 0;
   }
 }
@@ -156,7 +156,7 @@ void handleHistory() {
   uint32_t now = nowEpoch();
   if (now == 0) { server.send(200,"application/json","{\"err\":\"notime\"}"); return; }
 
-  uint32_t rangeSec = 604800UL;                 // week default
+  uint32_t rangeSec = 604800UL;           
   if (server.hasArg("r")) {
     char c = server.arg("r").charAt(0);
     if (c=='m') rangeSec = 2592000UL;
@@ -175,7 +175,7 @@ void handleHistory() {
   if (!f) { server.send(404,"application/json","{\"err\":\"nofile\"}"); return; }
 
   char line[96];
-  f.readBytesUntil('\n', line, sizeof(line)-1);   // ข้าม header
+  f.readBytesUntil('\n', line, sizeof(line)-1);   
   while (f.available()) {
     int n = f.readBytesUntil('\n', line, sizeof(line)-1);
     line[n] = 0;
@@ -244,9 +244,9 @@ void deletefile() {
   else      { Serial.println("Error clearing CSV file."); }
 }
 
-// อ่านทั้งไฟล์ กรองเฉพาะแถวที่ใหม่กว่า cutoff เขียนไฟล์ใหม่ (stream, RAM คงที่)
+
 void purgeOlderThan(uint32_t cutoff) {
-  if (nowEpoch() == 0) return;                  // ยังไม่ sync เวลา อย่าลบ
+  if (nowEpoch() == 0) return;                 
   File in = LittleFS.open("/knee_data.csv", "r");
   if (!in) return;
   File out = LittleFS.open("/tmp.csv", "w");
@@ -272,7 +272,7 @@ void purgeOlderThan(uint32_t cutoff) {
 
 void maybePurge() {
   if (keepMode == 0) return;
-  if (nowEpoch() == 0) return;                  // ต้อง sync เวลาก่อน
+  if (nowEpoch() == 0) return;                  
   if (!purgedOnce || (millis() - lastPurge >= PURGE_INTERVAL)) {
     purgeOlderThan(nowEpoch() - keepSeconds());
     lastPurge = millis();
@@ -303,7 +303,7 @@ void setup() {
     return;
   }
 
-  // กู้คืนถ้า purge ค้างกลางคัน (ไฟดับตอน rename)
+
   if (LittleFS.exists("/tmp.csv")) {
     if (!LittleFS.exists("/knee_data.csv")) LittleFS.rename("/tmp.csv", "/knee_data.csv");
     else                                    LittleFS.remove("/tmp.csv");
