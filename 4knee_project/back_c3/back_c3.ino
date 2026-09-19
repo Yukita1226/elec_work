@@ -3,7 +3,7 @@
 
 
 uint8_t receiverMac[] = {0x84, 0x1F, 0xE8, 0x1C, 0x6A, 0x98};
-const int test = 4;
+const int k[4] = {1,2,3,4};
 
 typedef struct struct_message {
 
@@ -13,6 +13,8 @@ typedef struct struct_message {
   float knee4;
 
 } struct_message;
+
+
 
 struct_message knee;
 
@@ -56,22 +58,30 @@ void setup() {
 
 void loop() {
 
-  knee.knee1 = analogRead(test)*3.3/4095.0;
-  knee.knee2 = random(0,50000)/100.0;
-  knee.knee3 = random(0,50000)/100.0;
-  knee.knee4 = random(0,50000)/100.0;
+  knee.knee1 = analogRead(k[0])*100.0/4095.0;
+  knee.knee2 = analogRead(k[1])*100.0/4095.0;
+  knee.knee3 = analogRead(k[2])*100.0/4095.0;
+  knee.knee4 = analogRead(k[3])*100.0/4095.0;
+
+  int kn[4] = {knee.knee1,knee.knee2,knee.knee3,knee.knee4};
 
   esp_err_t result = esp_now_send(receiverMac, (uint8_t *)&knee, sizeof(knee));
 
   if (result == ESP_OK) {
     Serial.println("Sent data successfully");
 
-    Serial.print("test knee 1 :");
   } else {
     Serial.println("Error sending data");
   }
 
-  Serial.println(knee.knee1);
+  Serial.print("test knee  :");
+  for (int a  =0 ; a< 4; a++) {
+    Serial.print(kn[a]);
+    Serial.print(" , ");
+  }
+  Serial.println("");
+
+
 
   delay(1000); 
 }
