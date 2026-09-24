@@ -336,5 +336,6 @@ void loop() {
     writefile(knee);
     lastLog = millis();
   }
+
   maybePurge();
 }

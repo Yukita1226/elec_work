@@ -2,7 +2,7 @@
 #include <WiFi.h>
 #include <esp_wifi.h>
 
-uint8_t receiverMac[] ={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+uint8_t receiverMac[] = {0x14, 0x2B, 0x2F, 0xC0, 0xDB, 0x14};
 const int k[4] = {1,2,3,4};
 
 typedef struct struct_message {
