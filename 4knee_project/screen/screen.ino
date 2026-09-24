@@ -1,5 +1,6 @@
 #include <esp_now.h>
 #include <WiFi.h>
+#include <esp_wifi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
 #include <Preferences.h>
@@ -291,6 +292,10 @@ void setup() {
   WiFi.softAP(ap_ssid, NULL, 1);
   Serial.print("AP IP: ");         Serial.println(WiFi.softAPIP());
   Serial.print("Receiver MAC: ");  Serial.println(WiFi.macAddress());
+
+  uint8_t prim; wifi_second_chan_t sec;
+  esp_wifi_get_channel(&prim, &sec);
+  Serial.printf("sender channel: %d\n", prim);
 
   if (esp_now_init() != ESP_OK) {
     Serial.println("ESP-NOW init failed");

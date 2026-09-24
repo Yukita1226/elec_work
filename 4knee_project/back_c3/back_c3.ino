@@ -1,8 +1,8 @@
 #include <esp_now.h>
 #include <WiFi.h>
+#include <esp_wifi.h>
 
-
-uint8_t receiverMac[] = {0x84, 0x1F, 0xE8, 0x1C, 0x6A, 0x98};
+uint8_t receiverMac[] ={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 const int k[4] = {1,2,3,4};
 
 typedef struct struct_message {
@@ -30,6 +30,14 @@ void setup() {
 
   Serial.begin(115200);
   WiFi.mode(WIFI_STA); 
+
+  uint8_t prim; wifi_second_chan_t sec;
+  esp_wifi_get_channel(&prim, &sec);
+  Serial.printf("receiver channel: %d\n", prim);
+
+  
+
+
   analogReadResolution(12);             
   analogSetAttenuation(ADC_11db);
 
@@ -62,6 +70,11 @@ void loop() {
   knee.knee2 = analogRead(k[1])*100.0/4095.0;
   knee.knee3 = analogRead(k[2])*100.0/4095.0;
   knee.knee4 = analogRead(k[3])*100.0/4095.0;
+
+  // knee.knee1 = random(0,100);
+  // knee.knee2 = random(0,100);
+  // knee.knee3 = random(0,100);
+  // knee.knee4 = random(0,100);
 
   int kn[4] = {knee.knee1,knee.knee2,knee.knee3,knee.knee4};
 
