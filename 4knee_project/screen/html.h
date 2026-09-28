@@ -14,6 +14,7 @@ body.poly{--b1:#fffde8;--b2:#f6ee46;--b3:#ddd400;--b4:#9e9800;--b5:#6f6b00;--bin
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Thai",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:14px 14px 28px;transition:background .25s,color .25s;-webkit-tap-highlight-color:transparent;}
 .wrap{max-width:520px;margin:0 auto;}
+.main{display:flex;flex-direction:column;gap:12px;}
 
 /* header */
 .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
@@ -72,11 +73,20 @@ body.light .big,body.light .small{stroke:rgba(255,255,255,.9);}
  #mottle{opacity:var(--mott);}
 
 /* trend chart */
-.chartcard{margin-top:12px;padding:12px 12px 12px;}
-.chead{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
+.chartcard{padding:12px;display:flex;flex-direction:column;}
+.chead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px;}
+.chright{display:flex;align-items:center;gap:10px;flex:none;}
 .chead .live{font-size:.62rem;font-weight:700;letter-spacing:1px;color:var(--accent);display:flex;align-items:center;gap:5px;}
 .chead .live::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.6s infinite;}
-canvas{width:100%;height:180px;display:block;}
+.gtog{display:flex;gap:2px;padding:3px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;}
+.gbtn{width:34px;height:28px;display:flex;align-items:center;justify-content:center;border:none;border-radius:7px;background:transparent;color:var(--muted);cursor:pointer;transition:.15s;}
+.gbtn svg{width:17px;height:17px;}
+.gbtn polyline{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+.gbtn rect{fill:currentColor;}
+.gbtn.active{background:var(--surface);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.gbtn:active{transform:scale(.92);}
+.plot{position:relative;height:180px;}
+#chart{position:absolute;inset:0;width:100%;height:100%;display:block;}
 .rangebtns{display:flex;gap:2px;margin:8px 0 8px;padding:3px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;}
 .rangebtns.hide{display:none;}
 .rbtn{flex:1;border:none;background:transparent;color:var(--muted);border-radius:7px;padding:6px 0;font-size:.72rem;font-weight:600;cursor:pointer;}
@@ -114,6 +124,16 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
 .dbtn.danger{border-color:var(--danger);color:var(--danger);}
 .dbtn:active{transform:scale(.97);}
 .seclabel{font-size:.7rem;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:700;padding:18px 2px 2px;}
+
+@media (orientation:landscape) and (min-width:640px){
+ body{padding:12px 16px 16px;}
+ .wrap{max-width:1180px;}
+ .main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:stretch;}
+ .kneecard{display:flex;flex-direction:column;}
+ .kneecard .vp{flex:1;display:flex;flex-direction:column;justify-content:center;}
+ .canvas{width:min(100%,460px,max(240px,calc((100vh - 210px) * 1.28)));}
+ .plot{flex:1;height:auto;min-height:140px;}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 </style></head><body>
 
@@ -128,7 +148,8 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
  </div>
  <div class="statusbar"><div id="status" class="status off">...</div></div>
 
- <div class="card">
+ <div class="main">
+ <div class="card kneecard">
  <div class="cardhead"><span class="ttl" id="kTitle">Load distribution</span><span class="tagline" id="kSub">Tibial plateau &middot; top view</span></div>
  <div class="vp">
  <div class="canvas">
@@ -255,21 +276,30 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
 
  <div class="chartcard card">
   <div class="chead">
-   <h3 id="chTitle">Load over time</h3><span class="live" id="liveTag">LIVE</span>
+   <h3 id="chTitle">Load over time</h3>
+   <div class="chright">
+    <span class="live" id="liveTag">LIVE</span>
+    <div class="gtog" role="group">
+     <button class="gbtn active" id="gLine" onclick="setGType(0)" title="Line" aria-label="Line"><svg viewBox="0 0 24 24"><polyline points="3,17 8,11 13,14 21,5"/></svg></button>
+     <button class="gbtn" id="gBar" onclick="setGType(1)" title="Bar" aria-label="Bar"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4.5" height="9" rx="1"/><rect x="9.75" y="5" width="4.5" height="16" rx="1"/><rect x="16.5" y="9" width="4.5" height="12" rx="1"/></svg></button>
+    </div>
+   </div>
   </div>
   <div class="rangebtns" id="rangeBtns">
-   <button class="rbtn active" data-r="0" onclick="setView(0)">Live</button>
-   <button class="rbtn" data-r="1" onclick="setView(1)">1W</button>
-   <button class="rbtn" data-r="2" onclick="setView(2)">1M</button>
-   <button class="rbtn" data-r="3" onclick="setView(3)">1Y</button>
+   <button class="rbtn active" data-r="0" id="rLive" onclick="setView(0)">Real time</button>
+   <button class="rbtn" data-r="1" id="r1s" onclick="setView(1)">1 sec</button>
+   <button class="rbtn" data-r="2" id="r1m" onclick="setView(2)">1 min</button>
+   <button class="rbtn" data-r="3" id="r1h" onclick="setView(3)">1 hour</button>
+   <button class="rbtn" data-r="4" id="r1d" onclick="setView(4)">1 day</button>
   </div>
-  <canvas id="chart"></canvas>
+  <div class="plot" id="plot"><canvas id="chart"></canvas></div>
   <div class="legend">
    <div class="lg" style="--lc:var(--c0)"><b>AL</b><span id="lv0">0</span><em class="lu">g</em></div>
    <div class="lg" style="--lc:var(--c1)"><b>AM</b><span id="lv1">0</span><em class="lu">g</em></div>
    <div class="lg" style="--lc:var(--c2)"><b>PL</b><span id="lv2">0</span><em class="lu">g</em></div>
    <div class="lg" style="--lc:var(--c3)"><b>PM</b><span id="lv3">0</span><em class="lu">g</em></div>
   </div>
+ </div>
  </div>
  <div class="foot" id="foot">KNEE LOAD MONITOR &middot; ESP-NOW 4-CH</div>
 </div>
@@ -313,21 +343,28 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
 <script>
 const LOAD_WARN=20000, LOAD_DANGER=35000;
 const T={
- 0:{title:"จอวัดน้ำหนักลงเข่า",sub:"เซ็นเซอร์วัดแรงกด 4 จุด",kTitle:"การกระจายแรงกด",kSub:"ผิวกระดูกหน้าแข้ง · มุมบน",live:"สด",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",gtype:"รูปแบบกราฟ",gtypesub:"กราฟแท่งแสดงเฉพาะข้อมูลสด",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง",nosync:"ยังไม่ได้ซิงค์เวลา",nodata:"ไม่มีข้อมูล",data:"ข้อมูล",keep:"ล้างอัตโนมัติ",keepsub:"ลบข้อมูลเก่าโดยอัตโนมัติ",dl:"ดาวน์โหลด CSV",del:"ลบทั้งหมด",confirmDel:"ลบข้อมูลทั้งหมด?"},
- 1:{title:"Knee Load Monitor",sub:"4-channel tibial load sensor",kTitle:"Load distribution",kSub:"Tibial plateau · top view",live:"LIVE",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",gtype:"Graph type",gtypesub:"Bar graph shows live data only",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar",nosync:"No time sync yet",nodata:"No data",data:"Data",keep:"Auto-clear",keepsub:"Old data is removed automatically",dl:"Download CSV",del:"Delete all",confirmDel:"Delete all data?"}
+ 0:{title:"จอวัดน้ำหนักลงเข่า",sub:"เซ็นเซอร์วัดแรงกด 4 จุด",kTitle:"การกระจายแรงกด",kSub:"ผิวกระดูกหน้าแข้ง · มุมบน",live:"สด",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",gtype:"รูปแบบกราฟ",gtypesub:"กราฟแท่งแสดงเฉพาะข้อมูลสด",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง",nosync:"ยังไม่ได้ซิงค์เวลา",nodata:"ไม่มีข้อมูล",data:"ข้อมูล",keep:"ล้างอัตโนมัติ",keepsub:"ลบข้อมูลเก่าโดยอัตโนมัติ",dl:"ดาวน์โหลด CSV",del:"ลบทั้งหมด",confirmDel:"ลบข้อมูลทั้งหมด?",rlive:"เรียลไทม์",r1s:"1 วินาที",r1m:"1 นาที",r1h:"1 ชั่วโมง",r1d:"1 วัน",loading:"กำลังโหลด…"},
+ 1:{title:"Knee Load Monitor",sub:"4-channel tibial load sensor",kTitle:"Load distribution",kSub:"Tibial plateau · top view",live:"LIVE",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",gtype:"Graph type",gtypesub:"Bar graph shows live data only",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar",nosync:"No time sync yet",nodata:"No data",data:"Data",keep:"Auto-clear",keepsub:"Old data is removed automatically",dl:"Download CSV",del:"Delete all",confirmDel:"Delete all data?",rlive:"Real time",r1s:"1 sec",r1m:"1 min",r1h:"1 hour",r1d:"1 day",loading:"Loading…"}
 };
 const UNITS=[{f:1,s:"g",d:0},{f:0.00980665,s:"N",d:1},{f:0.001,s:"kg",d:2}];
 let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
 
+  const POLL_MS=1000;
   const HIST=120;
-  let hist=[[],[],[],[]], mat=0;
+  const HKEY=["","s","m","h","d"],HLBL=["","-2m","-2h","-5d","-120d"];
+  let hist=[[],[],[],[]], histT=[], mat=0;
   let view=0;
   let histView=[[],[],[],[]];
   let histMsg="";
+  let histReq=0, histPending=false, histTimer=0;
+  let gLock=0;
   const statusEl=document.getElementById("status");
   let lastLang=-1, busy=false;
 
   try{mat=parseInt(localStorage.getItem("kneeMat")||"0",10)||0;}catch(e){}
+
+  async function getJson(u){const c=new AbortController(),t=setTimeout(function(){c.abort();},4000);
+   try{return await (await fetch(u,{signal:c.signal})).json();}finally{clearTimeout(t);}}
 
   function applyMat(v){mat=parseInt(v,10)||0;document.body.classList.toggle("poly",mat===1);
    try{localStorage.setItem("kneeMat",mat);}catch(e){}}
@@ -343,30 +380,48 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    sub.textContent=t.sub;kTitle.textContent=t.kTitle;kSub.textContent=t.kSub;liveTag.textContent=t.live;
    lblGType.firstChild.nodeValue=t.gtype;lblGTypeSub.textContent=t.gtypesub;
    lblData.textContent=t.data;lblKeep.firstChild.nodeValue=t.keep;lblKeepSub.textContent=t.keepsub;
-   btnDownload.textContent=t.dl;btnDelete.textContent=t.del;}
+   btnDownload.textContent=t.dl;btnDelete.textContent=t.del;
+   rLive.textContent=t.rlive;r1s.textContent=t.r1s;r1m.textContent=t.r1m;r1h.textContent=t.r1h;r1d.textContent=t.r1d;
+   gLine.title=t.line;gLine.setAttribute("aria-label",t.line);
+   gBar.title=t.bar;gBar.setAttribute("aria-label",t.bar);}
   function applyType(){const t=T[cur.lang];
    selGType.options[0].text=t.line;selGType.options[1].text=t.bar;
    const bar=(cur.gtype===1);
+   gLine.classList.toggle("active",!bar);gBar.classList.toggle("active",bar);
    rangeBtns.classList.toggle("hide",bar);
    if(bar&&view!==0)setView(0);}
+
+  function setGType(v){if(cur.gtype===v)return;
+   cur.gtype=v;gLock=Date.now();yLo=null;
+   applyType();drawChart();
+   fetch("/set?graphtype="+v).catch(function(){});}
 
   function rawColor(v){const cs=getComputedStyle(document.body);
    return cs.getPropertyValue(v>=LOAD_DANGER?"--danger":(v>=LOAD_WARN?"--warn":"--accent")).trim();}
 
   function setView(v){view=v;liveTag.style.visibility=(v===0)?"visible":"hidden";if(v===0)liveTag.textContent=T[cur.lang].live;
    document.querySelectorAll(".rbtn").forEach(function(b){b.classList.toggle("active",parseInt(b.dataset.r,10)===v);});
+   if(histTimer){clearInterval(histTimer);histTimer=0;}
    histMsg="";yLo=null;
-   if(v===0){drawChart();}else{fetchHistory();}}
+   if(v===0){drawChart();}
+   else{
+    histView=[[],[],[],[]];histMsg=T[cur.lang].loading;drawChart();
+    fetchHistory(true);
+    histTimer=setInterval(fetchHistory,POLL_MS);
+   }}
 
-  async function fetchHistory(){
-   const map={1:"w",2:"m",3:"y"};
-   try{const d=await (await fetch("/history?r="+map[view])).json();
+  async function fetchHistory(force){
+   if(view===0||(histPending&&force!==true))return;
+   const id=++histReq,v=view;histPending=true;
+   try{const d=await getJson("/history?r="+HKEY[v]);
+    if(id!==histReq||v!==view)return;
     if(d.err){histMsg=d.err==="notime"?T[cur.lang].nosync:T[cur.lang].nodata;histView=[[],[],[],[]];drawChart();return;}
     histView=d.k;
-    let any=false;for(let i=0;i<4;i++)for(const v of histView[i])if(v>=0){any=true;break;}
+    let any=false;for(let i=0;i<4;i++)for(const x of histView[i])if(x>=0){any=true;break;}
     histMsg=any?"":T[cur.lang].nodata;
     drawChart();
-   }catch(e){histMsg=T[cur.lang].nodata;drawChart();}}
+   }catch(e){if(id===histReq&&v===view){histMsg=T[cur.lang].nodata;drawChart();}}
+   finally{if(id===histReq)histPending=false;}}
 
   function render(d){
    const t=T[cur.lang],u=UNITS[cur.metric];
@@ -391,6 +446,7 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    if(tot>0){nx=(-w[0]+w[1]-w[2]+w[3])/tot;ny=(-w[0]-w[1]+w[2]+w[3])/tot;}
    dot.style.left=(50+nx*40)+"%";dot.style.top=(50+ny*34)+"%";
    for(let i=0;i<4;i++){hist[i].push(w[i]);if(hist[i].length>HIST)hist[i].shift();}
+   histT.push(Date.now());if(histT.length>HIST)histT.shift();
    if(view===0)drawChart();
   }
 
@@ -426,6 +482,7 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    if(raf){cancelAnimationFrame(raf);raf=0;}
    const c=document.getElementById("chart"),ctx=c.getContext("2d");
    const dpr=window.devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;
+   if(!w||!h)return;
    if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);}
    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
    const cs=getComputedStyle(document.body);
@@ -501,36 +558,40 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
      if(pen){ctx.fillStyle=cols[i];ctx.beginPath();ctx.arc(lx,ly,2.6,0,6.29);ctx.fill();}
     }
     ctx.fillStyle=cMuted;ctx.textAlign="left";
-    const lbl=live?("-"+((HIST*0.5)|0)+"s"):(view===1?"-7d":view===2?"-30d":"-1y");
+    const lbl=live?("-"+(histT.length>1?((histT[histT.length-1]-histT[0])/1000).toFixed(1):"0")+"s"):HLBL[view];
     ctx.fillText(lbl,pl+1,h-4);
     ctx.textAlign="right";ctx.fillText("now",pl+pw,h-4);
    }
    ctx.textAlign="left";ctx.fillStyle=cMuted;ctx.fillText(u.s,4,h-4);
   }
 
-  function clearHist(){if(view===0){hist=[[],[],[],[]];}yLo=null;drawChart();}
+  function clearHist(){if(view===0){hist=[[],[],[],[]];histT=[];}yLo=null;drawChart();}
 
   function downloadCsv(){window.location.href="/download";}
   function deleteCsv(){if(confirm(T[cur.lang].confirmDel)){fetch("/clear").then(function(){clearHist();});}}
   function setKeep(v){cur.keep=parseInt(v,10)||0;fetch("/set?keep="+cur.keep).catch(function(){});}
 
   async function poll(){
-   if(busy)return;busy=true;
-   try{const d=await (await fetch("/data")).json();
-    cur.theme=d.theme;cur.lang=d.lang;cur.metric=d.metric;cur.auto=d.auto;cur.gtype=d.graphtype;cur.keep=d.keep;
-    applyTheme();applyLang();applyType();render(d);}catch(e){}
-   busy=false;
+   if(busy)return false;busy=true;let ok=false;
+   try{const d=await getJson("/data");
+    cur.theme=d.theme;cur.lang=d.lang;cur.metric=d.metric;cur.auto=d.auto;cur.keep=d.keep;
+    if(Date.now()-gLock>2000)cur.gtype=d.graphtype;
+    applyTheme();applyLang();applyType();render(d);ok=true;}catch(e){}
+   busy=false;return ok;
   }
+  async function pollLoop(){const ok=await poll();setTimeout(pollLoop,ok&&view===0?0:POLL_MS);}
   function openPanel(){selTheme.value=cur.theme;selLang.value=cur.lang;selMetric.value=cur.metric;selGType.value=cur.gtype;
    chkAuto.checked=cur.auto;selMat.value=mat;selKeep.value=cur.keep;panel.classList.add("open");}
   function closePanel(){panel.classList.remove("open");}
   async function saveAndClose(){const q="theme="+selTheme.value+"&lang="+selLang.value+"&metric="+selMetric.value+"&graphtype="+selGType.value+"&auto="+(chkAuto.checked?1:0);
    await fetch("/set?"+q);panel.classList.remove("open");poll();}
+
   window.addEventListener("resize",drawChart);
+  if(window.ResizeObserver){new ResizeObserver(function(){drawChart();}).observe(document.getElementById("plot"));}
 
   fetch("/time?t="+Math.floor(Date.now()/1000)).catch(function(){});
 function tick(){const d=new Date(),p=function(n){return (n<10?"0":"")+n;};clock.textContent=p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());}
-applyMat(mat);applyType();setInterval(poll,500);poll();tick();setInterval(tick,1000);
+applyMat(mat);applyType();pollLoop();tick();setInterval(tick,1000);
 </script>
 </body></html>
 )HTML";

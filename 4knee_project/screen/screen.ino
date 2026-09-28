@@ -1,6 +1,4 @@
-#include <esp_now.h>
 #include <WiFi.h>
-#include <esp_wifi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
 #include <Preferences.h>
@@ -11,6 +9,8 @@
 #include "LittleFS.h"
 
 const char* ap_ssid = "KneeMonitor";
+
+const int k[4] = {1,2,3,4};
 
 WebServer   server(80);
 DNSServer   dnsServer;
@@ -27,6 +27,17 @@ volatile uint32_t      bootEpoch    = 0;
 const unsigned long TIMEOUT_MS   = 3000;
 unsigned long       lastLog      = 0;
 const unsigned long LOG_INTERVAL = 1000;
+
+unsigned long       lastRead      = 0;
+const unsigned long READ_INTERVAL = 10;
+
+const int           HIST_NB      = 120;
+const uint32_t      HIST_STEP[4] = {1UL, 60UL, 3600UL, 86400UL};
+float               hist[4][4][HIST_NB];
+double              histSum[4][4];
+uint32_t            histCnt[4]   = {0};
+uint32_t            histSlot[4]  = {0};
+uint8_t             histHead[4]  = {0};
 
 uint8_t             keepMode     = 0;             
 unsigned long       lastPurge    = 0;
@@ -84,17 +95,52 @@ void savegraph() {
 }
 
 
-void onDataRecv(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
-  if (len == sizeof(knee)) {
-    memcpy(&knee, data, sizeof(knee));
-    lastRecvTime = millis();
-    Serial.printf("knee: %.2f %.2f %.2f %.2f\n",
-                  knee.knee1, knee.knee2, knee.knee3, knee.knee4);
-  }
+void readSensors() {
+  knee.knee1 = analogRead(k[0])*100.0/4095.0;
+  knee.knee2 = analogRead(k[1])*100.0/4095.0;
+  knee.knee3 = analogRead(k[2])*100.0/4095.0;
+  knee.knee4 = analogRead(k[3])*100.0/4095.0;
+
+  // knee.knee1 = random(0,100);
+  // knee.knee2 = random(0,100);
+  // knee.knee3 = random(0,100);
+  // knee.knee4 = random(0,100);
+
+  lastRecvTime = millis();
+  Serial.printf("knee: %.2f %.2f %.2f %.2f\n",
+                knee.knee1, knee.knee2, knee.knee3, knee.knee4);
 }
 
 bool isConnected() {
   return (lastRecvTime != 0) && (millis() - lastRecvTime < TIMEOUT_MS);
+}
+
+
+void inithistory() {
+  for (int s=0;s<4;s++)
+    for (int i=0;i<4;i++)
+      for (int b=0;b<HIST_NB;b++) hist[s][i][b] = -1;
+}
+
+void addhistory(const Recive_data &x) {
+  uint32_t sec = millis() / 1000;
+  for (int s=0;s<4;s++) {
+    uint32_t slot = sec / HIST_STEP[s];
+    if (slot != histSlot[s]) {
+      uint32_t gap = slot - histSlot[s];
+      if (gap > (uint32_t)HIST_NB) gap = HIST_NB;
+      for (uint32_t g=0;g<gap;g++) {
+        for (int i=0;i<4;i++) hist[s][i][histHead[s]] = (g==0 && histCnt[s]) ? histSum[s][i]/histCnt[s] : -1;
+        histHead[s] = (histHead[s]+1) % HIST_NB;
+      }
+      histSlot[s] = slot;
+      histCnt[s]  = 0;
+      for (int i=0;i<4;i++) histSum[s][i] = 0;
+    }
+    histSum[s][0] += x.knee1; histSum[s][1] += x.knee2;
+    histSum[s][2] += x.knee3; histSum[s][3] += x.knee4;
+    histCnt[s]++;
+  }
 }
 
 
@@ -154,60 +200,21 @@ void handleDownload() {
 }
 
 void handleHistory() {
-  uint32_t now = nowEpoch();
-  if (now == 0) { server.send(200,"application/json","{\"err\":\"notime\"}"); return; }
-
-  uint32_t rangeSec = 604800UL;           
+  int s = 0;
   if (server.hasArg("r")) {
     char c = server.arg("r").charAt(0);
-    if (c=='m') rangeSec = 2592000UL;
-    else if (c=='y') rangeSec = 31536000UL;
+    if (c=='m') s = 1;
+    else if (c=='h') s = 2;
+    else if (c=='d') s = 3;
   }
-
-  static const int NB = 120;
-  static float    sum[4][NB];
-  static uint16_t cnt[NB];
-  for (int b=0;b<NB;b++){ cnt[b]=0; for(int i=0;i<4;i++) sum[i][b]=0; }
-
-  uint32_t start     = (now > rangeSec) ? now - rangeSec : 0;
-  uint32_t bucketSec = rangeSec / NB;
-
-  File f = LittleFS.open("/knee_data.csv","r");
-  if (!f) { server.send(404,"application/json","{\"err\":\"nofile\"}"); return; }
-
-  char line[96];
-  f.readBytesUntil('\n', line, sizeof(line)-1);   
-  while (f.available()) {
-    int n = f.readBytesUntil('\n', line, sizeof(line)-1);
-    line[n] = 0;
-    if (n < 5) continue;
-    unsigned long ts; float a,b,c,d;
-    if (sscanf(line,"%lu,%f,%f,%f,%f",&ts,&a,&b,&c,&d)==5) {
-      if (ts >= start && ts <= now) {
-        int bi = (ts - start)/bucketSec;
-        if (bi < 0) bi = 0; if (bi >= NB) bi = NB-1;
-        sum[0][bi]+=a; sum[1][bi]+=b; sum[2][bi]+=c; sum[3][bi]+=d; cnt[bi]++;
-      }
-    }
-  }
-  f.close();
-
-  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-  server.send(200,"application/json","");
-  char chunk[64];
-  snprintf(chunk,sizeof(chunk),"{\"start\":%lu,\"dt\":%lu,\"k\":[",(unsigned long)start,(unsigned long)bucketSec);
-  server.sendContent(chunk);
+  String j = "{\"k\":[";
   for (int i=0;i<4;i++){
-    server.sendContent(i ? ",[" : "[");
-    for (int b=0;b<NB;b++){
-      float v = cnt[b] ? sum[i][b]/cnt[b] : -1;
-      snprintf(chunk,sizeof(chunk),"%s%.1f", b?",":"", v);
-      server.sendContent(chunk);
-    }
-    server.sendContent("]");
+    j += i ? ",[" : "[";
+    for (int b=1;b<HIST_NB;b++) j += String(hist[s][i][(histHead[s]+b)%HIST_NB],1) + ",";
+    j += String(histCnt[s] ? histSum[s][i]/histCnt[s] : -1.0, 1) + "]";
   }
-  server.sendContent("]}");
-  server.sendContent("");
+  j += "]}";
+  server.send(200, "application/json", j);
 }
 
 void handleNotFound() {
@@ -285,23 +292,17 @@ void maybePurge() {
 void setup() {
   Serial.begin(115200);
 
+  analogReadResolution(12);             
+  analogSetAttenuation(ADC_11db);
+
   loadSettings();
   loadgraph();
+  inithistory();
 
-  WiFi.mode(WIFI_AP_STA);
+  WiFi.mode(WIFI_AP);
   WiFi.softAP(ap_ssid, NULL, 1);
+  WiFi.setTxPower(WIFI_POWER_8_5dBm);
   Serial.print("AP IP: ");         Serial.println(WiFi.softAPIP());
-  Serial.print("Receiver MAC: ");  Serial.println(WiFi.macAddress());
-
-  uint8_t prim; wifi_second_chan_t sec;
-  esp_wifi_get_channel(&prim, &sec);
-  Serial.printf("sender channel: %d\n", prim);
-
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("ESP-NOW init failed");
-    return;
-  }
-  esp_now_register_recv_cb(onDataRecv);
 
   if (!LittleFS.begin(true)) {
     Serial.println("LittleFS Mount Failed");
@@ -331,6 +332,12 @@ void setup() {
 void loop() {
   dnsServer.processNextRequest();
   server.handleClient();
+
+  if (millis() - lastRead >= READ_INTERVAL) {
+    readSensors();
+    addhistory(knee);
+    lastRead = millis();
+  }
 
   if (isConnected() && (millis() - lastLog >= LOG_INTERVAL)) {
     writefile(knee);
