@@ -85,8 +85,13 @@ body.light .big,body.light .small{stroke:rgba(255,255,255,.9);}
 .gbtn rect{fill:currentColor;}
 .gbtn.active{background:var(--surface);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.2);}
 .gbtn:active{transform:scale(.92);}
-.plot{position:relative;height:180px;}
+.plot{position:relative;height:180px;user-select:none;-webkit-user-select:none;}
 #chart{position:absolute;inset:0;width:100%;height:100%;display:block;}
+.plot.lz #chart{touch-action:pan-y;cursor:grab;}
+.plot.lz.drag #chart{cursor:grabbing;}
+.zreset{position:absolute;top:4px;right:6px;z-index:2;display:none;align-items:center;padding:3px 9px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--accent);font-size:.68rem;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.zreset.show{display:inline-flex;}
+.zreset:active{transform:scale(.94);}
 .rangebtns{display:flex;gap:2px;margin:8px 0 8px;padding:3px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;}
 .rangebtns.hide{display:none;}
 .rbtn{flex:1;border:none;background:transparent;color:var(--muted);border-radius:7px;padding:6px 0;font-size:.72rem;font-weight:600;cursor:pointer;}
@@ -206,11 +211,6 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
     <g clip-path="url(#clipDishL)">
      <ellipse cx="92" cy="122" rx="52" ry="62" fill="none" stroke="#6d5837" stroke-width="14" opacity=".45" filter="url(#fBlur6)"/>
      <ellipse cx="88" cy="150" rx="34" ry="26" fill="#fff" opacity=".16" filter="url(#fBlur6)"/>
-     <g class="etch" stroke-width="1.4">
-      <path d="M56 86 L128 104 L70 172 Z"/>
-      <path d="M64 96 L116 109 L74 158 Z"/>
-      <path d="M56 86 L74 172"/><path d="M64 130 L118 106"/>
-     </g>
     </g>
     <ellipse id="heatL" cx="92" cy="122" rx="52" ry="62" fill="#f85149" opacity="0"/>
     <ellipse cx="92" cy="122" rx="52" ry="62" fill="none" stroke="#fff" stroke-width="2" opacity=".22"/>
@@ -219,11 +219,6 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
     <g clip-path="url(#clipDishM)">
      <ellipse cx="228" cy="122" rx="52" ry="62" fill="none" stroke="#6d5837" stroke-width="14" opacity=".45" filter="url(#fBlur6)"/>
      <ellipse cx="232" cy="150" rx="34" ry="26" fill="#fff" opacity=".16" filter="url(#fBlur6)"/>
-     <g class="etch" stroke-width="1.4">
-      <path d="M264 86 L192 104 L250 172 Z"/>
-      <path d="M256 96 L204 109 L246 158 Z"/>
-      <path d="M264 86 L246 172"/><path d="M256 130 L202 106"/>
-     </g>
     </g>
     <ellipse id="heatM" cx="228" cy="122" rx="52" ry="62" fill="#f85149" opacity="0"/>
     <ellipse cx="228" cy="122" rx="52" ry="62" fill="none" stroke="#fff" stroke-width="2" opacity=".22"/>
@@ -249,14 +244,14 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
     <circle id="p3" cx="228" cy="172" r="6.5" fill="#34d399" stroke="rgba(0,0,0,.55)" stroke-width="2"/>
    </g>
    <g text-anchor="middle">
-    <text class="tag" x="70"  y="70">AL</text>
-    <text class="tag" x="250" y="70">AM</text>
-    <text class="tag" x="70"  y="190">PL</text>
-    <text class="tag" x="250" y="190">PM</text>
-    <text class="small" id="s0" x="104" y="70"  fill="#34d399">0</text>
-    <text class="small" id="s1" x="216" y="70"  fill="#34d399">0</text>
-    <text class="small" id="s2" x="104" y="190" fill="#34d399">0</text>
-    <text class="small" id="s3" x="216" y="190" fill="#34d399">0</text>
+    <text class="tag" x="70"  y="50">AL</text>
+    <text class="tag" x="250" y="50">AM</text>
+    <text class="tag" x="70"  y="206">PL</text>
+    <text class="tag" x="250" y="206">PM</text>
+    <text class="small" id="s0" x="104" y="50"  fill="#34d399">0</text>
+    <text class="small" id="s1" x="216" y="50"  fill="#34d399">0</text>
+    <text class="small" id="s2" x="104" y="206" fill="#34d399">0</text>
+    <text class="small" id="s3" x="216" y="206" fill="#34d399">0</text>
     <text class="big"   id="bigL" x="92"  y="132" fill="#34d399">0</text>
     <text class="big"   id="bigM" x="228" y="132" fill="#34d399">0</text>
     <text class="unit"  id="uL" x="92"  y="150">g</text>
@@ -292,7 +287,7 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
    <button class="rbtn" data-r="3" id="r1h" onclick="setView(3)">1 hour</button>
    <button class="rbtn" data-r="4" id="r1d" onclick="setView(4)">1 day</button>
   </div>
-  <div class="plot" id="plot"><canvas id="chart"></canvas></div>
+  <div class="plot" id="plot"><canvas id="chart"></canvas><button class="zreset" id="zReset" onclick="resetZoom(true)" title="Reset zoom" aria-label="Reset zoom"></button></div>
   <div class="legend">
    <div class="lg" style="--lc:var(--c0)"><b>AL</b><span id="lv0">0</span><em class="lu">g</em></div>
    <div class="lg" style="--lc:var(--c1)"><b>AM</b><span id="lv1">0</span><em class="lu">g</em></div>
@@ -343,8 +338,8 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
 <script>
 const LOAD_WARN=20000, LOAD_DANGER=35000;
 const T={
- 0:{title:"จอวัดน้ำหนักลงเข่า",sub:"เซ็นเซอร์วัดแรงกด 4 จุด",kTitle:"การกระจายแรงกด",kSub:"ผิวกระดูกหน้าแข้ง · มุมบน",live:"สด",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",gtype:"รูปแบบกราฟ",gtypesub:"กราฟแท่งแสดงเฉพาะข้อมูลสด",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง",nosync:"ยังไม่ได้ซิงค์เวลา",nodata:"ไม่มีข้อมูล",data:"ข้อมูล",keep:"ล้างอัตโนมัติ",keepsub:"ลบข้อมูลเก่าโดยอัตโนมัติ",dl:"ดาวน์โหลด CSV",del:"ลบทั้งหมด",confirmDel:"ลบข้อมูลทั้งหมด?",rlive:"เรียลไทม์",r1s:"1 วินาที",r1m:"1 นาที",r1h:"1 ชั่วโมง",r1d:"1 วัน",loading:"กำลังโหลด…"},
- 1:{title:"Knee Load Monitor",sub:"4-channel tibial load sensor",kTitle:"Load distribution",kSub:"Tibial plateau · top view",live:"LIVE",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",gtype:"Graph type",gtypesub:"Bar graph shows live data only",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar",nosync:"No time sync yet",nodata:"No data",data:"Data",keep:"Auto-clear",keepsub:"Old data is removed automatically",dl:"Download CSV",del:"Delete all",confirmDel:"Delete all data?",rlive:"Real time",r1s:"1 sec",r1m:"1 min",r1h:"1 hour",r1d:"1 day",loading:"Loading…"}
+ 0:{title:"จอวัดน้ำหนักลงเข่า",sub:"เซ็นเซอร์วัดแรงกด 4 จุด",kTitle:"การกระจายแรงกด",kSub:"ผิวกระดูกหน้าแข้ง · มุมบน",live:"สด",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",gtype:"รูปแบบกราฟ",gtypesub:"กราฟแท่งแสดงเฉพาะข้อมูลสด",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง",nosync:"ยังไม่ได้ซิงค์เวลา",nodata:"ไม่มีข้อมูล",data:"ข้อมูล",keep:"ล้างอัตโนมัติ",keepsub:"ลบข้อมูลเก่าโดยอัตโนมัติ",dl:"ดาวน์โหลด CSV",del:"ลบทั้งหมด",confirmDel:"ลบข้อมูลทั้งหมด?",rlive:"เรียลไทม์",r1s:"1 วินาที",r1m:"1 นาที",r1h:"1 ชั่วโมง",r1d:"1 วัน",loading:"กำลังโหลด…",rz:"รีเซ็ตการซูม"},
+ 1:{title:"Knee Load Monitor",sub:"4-channel tibial load sensor",kTitle:"Load distribution",kSub:"Tibial plateau · top view",live:"LIVE",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",gtype:"Graph type",gtypesub:"Bar graph shows live data only",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar",nosync:"No time sync yet",nodata:"No data",data:"Data",keep:"Auto-clear",keepsub:"Old data is removed automatically",dl:"Download CSV",del:"Delete all",confirmDel:"Delete all data?",rlive:"Real time",r1s:"1 sec",r1m:"1 min",r1h:"1 hour",r1d:"1 day",loading:"Loading…",rz:"Reset zoom"}
 };
 const UNITS=[{f:1,s:"g",d:0},{f:0.00980665,s:"N",d:1},{f:0.001,s:"kg",d:2}];
 let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
@@ -352,12 +347,18 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
   const POLL_MS=1000;
   const HIST=120;
   const HKEY=["","s","m","h","d"],HLBL=["","-2m","-2h","-5d","-120d"];
+  const HDUR=[0,120,7200,432000,10368000];          // seconds covered by each history view
   let hist=[[],[],[],[]], histT=[], mat=0;
   let view=0;
   let histView=[[],[],[],[]];
   let histMsg="";
   let histReq=0, histPending=false, histTimer=0;
   let gLock=0;
+  // line-chart zoom state: visible window [z0,z1] as a fraction of the full series
+  let z0=0,z1=1,lastGT=-1,gest=null,multi=false,lastTap=0,lastTapX=0;
+  const ptrs=new Map();
+  const PL=46,PR=6;                                 // chart left/right padding (px)
+  const cv=document.getElementById("chart"),plotEl=document.getElementById("plot"),zBtn=document.getElementById("zReset");
   const statusEl=document.getElementById("status");
   let lastLang=-1, busy=false;
 
@@ -383,12 +384,15 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    btnDownload.textContent=t.dl;btnDelete.textContent=t.del;
    rLive.textContent=t.rlive;r1s.textContent=t.r1s;r1m.textContent=t.r1m;r1h.textContent=t.r1h;r1d.textContent=t.r1d;
    gLine.title=t.line;gLine.setAttribute("aria-label",t.line);
-   gBar.title=t.bar;gBar.setAttribute("aria-label",t.bar);}
+   gBar.title=t.bar;gBar.setAttribute("aria-label",t.bar);
+   zBtn.title=t.rz;zBtn.setAttribute("aria-label",t.rz);}
   function applyType(){const t=T[cur.lang];
    selGType.options[0].text=t.line;selGType.options[1].text=t.bar;
    const bar=(cur.gtype===1);
+   if(cur.gtype!==lastGT){lastGT=cur.gtype;z0=0;z1=1;ptrs.clear();gest=null;multi=false;plotEl.classList.remove("drag");}
    gLine.classList.toggle("active",!bar);gBar.classList.toggle("active",bar);
    rangeBtns.classList.toggle("hide",bar);
+   plotEl.classList.toggle("lz",!bar);zoomUi();
    if(bar&&view!==0)setView(0);}
 
   function setGType(v){if(cur.gtype===v)return;
@@ -399,7 +403,7 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
   function rawColor(v){const cs=getComputedStyle(document.body);
    return cs.getPropertyValue(v>=LOAD_DANGER?"--danger":(v>=LOAD_WARN?"--warn":"--accent")).trim();}
 
-  function setView(v){view=v;liveTag.style.visibility=(v===0)?"visible":"hidden";if(v===0)liveTag.textContent=T[cur.lang].live;
+  function setView(v){view=v;z0=0;z1=1;zoomUi();liveTag.style.visibility=(v===0)?"visible":"hidden";if(v===0)liveTag.textContent=T[cur.lang].live;
    document.querySelectorAll(".rbtn").forEach(function(b){b.classList.toggle("active",parseInt(b.dataset.r,10)===v);});
    if(histTimer){clearInterval(histTimer);histTimer=0;}
    histMsg="";yLo=null;
@@ -459,12 +463,15 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;}
   function decOf(s){for(let d=0;d<6;d++){const x=s*Math.pow(10,d);if(Math.abs(x-Math.round(x))<1e-6)return d;}return 6;}
 
-  // target range (raw grams) computed from what is on screen right now
+  // target range (raw grams) computed from what is on screen right now (line chart: only the zoomed window)
   function targetRange(data,live,bars,uf){
    let mn=Infinity,mx=-Infinity;
+   const N=live?HIST:120,pad=1/(N-1),fa=z0-pad,fb=z1+pad;   // visible window, +1 sample each side
    for(let i=0;i<4;i++){const a=data[i];
     if(bars){for(let k=a.length-1;k>=0;k--){if(live||a[k]>=0){if(a[k]<mn)mn=a[k];if(a[k]>mx)mx=a[k];break;}}}
-    else{for(const v of a){if(!live&&v<0)continue;if(v<mn)mn=v;if(v>mx)mx=v;}}
+    else{for(let j=0;j<a.length;j++){const v=a[j];if(!live&&v<0)continue;
+     const f=(live?j+N-a.length:j)/(N-1);if(f<fa||f>fb)continue;
+     if(v<mn)mn=v;if(v>mx)mx=v;}}
    }
    if(mn===Infinity){mn=0;mx=1000;}                 // no data yet
    const dataMin=mn;
@@ -490,7 +497,7 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    const cols=[cs.getPropertyValue("--c0").trim(),cs.getPropertyValue("--c1").trim(),
                cs.getPropertyValue("--c2").trim(),cs.getPropertyValue("--c3").trim()];
    const u=UNITS[cur.metric];
-   const pl=46,pr=6,pt=8,pb=16,pw=w-pl-pr,ph=h-pt-pb;
+   const pl=PL,pr=PR,pt=8,pb=16,pw=w-pl-pr,ph=h-pt-pb;
    const g1=cs.getPropertyValue("--grid").trim(),g2=cs.getPropertyValue("--grid2").trim();
    ctx.lineWidth=1;
    for(let x=0;x<=pw;x+=10){ctx.strokeStyle=(x%50===0)?g2:g1;ctx.beginPath();ctx.moveTo(pl+x+.5,pt);ctx.lineTo(pl+x+.5,pt+ph);ctx.stroke();}
@@ -533,7 +540,8 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
     ctx.beginPath();ctx.moveTo(pl,y+.5);ctx.lineTo(pl+pw,y+.5);ctx.stroke();ctx.restore();
    });
 
-   function xAt(j,len){return live?pl+pw*(j+HIST-len)/(HIST-1):pl+pw*j/(NP-1);}
+   // x position of sample j, mapped through the zoom window
+   function xAt(j,len){const f=live?(j+HIST-len)/(HIST-1):j/(NP-1);return pl+pw*(f-z0)/(z1-z0);}
 
    if(bars){
     const gap=12,bw=(pw-gap*5)/4,names=["AL","AM","PL","PM"],base=yOf(0);
@@ -545,6 +553,8 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
      ctx.fillStyle=cMuted;ctx.fillText(names[i],x+bw/2,h-4);
     }
    }else{
+    const zm=zoomed();
+    if(zm){ctx.save();ctx.beginPath();ctx.rect(pl,0,pw+pr,pt+ph+4);ctx.clip();}   // hide what's outside the zoom window
     for(let i=0;i<4;i++){
      const a=data[i];if(a.length<2)continue;
      ctx.lineWidth=2;ctx.lineJoin="round";ctx.strokeStyle=cols[i];ctx.shadowColor=cols[i];ctx.shadowBlur=glow?7:0;ctx.beginPath();
@@ -557,13 +567,84 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
      ctx.stroke();ctx.shadowBlur=0;
      if(pen){ctx.fillStyle=cols[i];ctx.beginPath();ctx.arc(lx,ly,2.6,0,6.29);ctx.fill();}
     }
+    if(zm)ctx.restore();
     ctx.fillStyle=cMuted;ctx.textAlign="left";
-    const lbl=live?("-"+(histT.length>1?((histT[histT.length-1]-histT[0])/1000).toFixed(1):"0")+"s"):HLBL[view];
+    let lbl,rlbl="now";
+    if(!zm)lbl=live?("-"+(histT.length>1?((histT[histT.length-1]-histT[0])/1000).toFixed(1):"0")+"s"):HLBL[view];
+    else{lbl=agoAt(z0,live);if(z1<0.999)rlbl=agoAt(z1,live);}
     ctx.fillText(lbl,pl+1,h-4);
-    ctx.textAlign="right";ctx.fillText("now",pl+pw,h-4);
+    ctx.textAlign="right";ctx.fillText(rlbl,pl+pw,h-4);
    }
    ctx.textAlign="left";ctx.fillStyle=cMuted;ctx.fillText(u.s,4,h-4);
   }
+
+  /* ---------- line chart zoom: wheel / pinch = zoom, drag = pan, double-tap or badge = reset ---------- */
+  function zoomed(){return z1-z0<0.999;}
+  function zMin(){return 6/((view===0?HIST:120)-1);}          // never show fewer than ~6 samples
+  function zoomUi(){const on=cur.gtype===0&&zoomed();zBtn.classList.toggle("show",on);
+   if(on)zBtn.textContent="\u21BA "+(1/(z1-z0)).toFixed(1)+"\u00D7";}
+  function setWin(a,s){s=Math.min(1,Math.max(zMin(),s));a=Math.max(0,Math.min(1-s,a));
+   if(a===z0&&a+s===z1)return;z0=a;z1=a+s;zoomUi();drawChart();}
+  function resetZoom(redraw){z0=0;z1=1;zoomUi();if(redraw)drawChart();}
+  function plotFrac(x){const r=cv.getBoundingClientRect();return Math.max(0,Math.min(1,(x-r.left-PL)/Math.max(1,r.width-PL-PR)));}
+  function fmtAgo(s){const U=[[172800,86400,"d"],[7200,3600,"h"],[120,60,"m"],[0,1,"s"]];
+   for(const q of U)if(s>=q[0]){const v=s/q[1];return "-"+(v>=10?Math.round(v):Math.round(v*10)/10)+q[2];}
+   return "-0s";}
+  function agoAt(f,live){
+   if(!live)return fmtAgo(HDUR[view]*(1-f));
+   const n=histT.length;if(n<2)return "-0.0s";
+   const j=Math.max(0,Math.min(n-1,f*(HIST-1)-(HIST-n))),i=Math.floor(j),k=Math.min(n-1,i+1);
+   const t=histT[i]+(histT[k]-histT[i])*(j-i);
+   return "-"+((histT[n-1]-t)/1000).toFixed(1)+"s";}
+
+  cv.addEventListener("wheel",function(e){
+   if(cur.gtype!==0)return;
+   e.preventDefault();
+   const s=z1-z0,px=e.deltaMode===1?33:(e.deltaMode===2?cv.clientHeight:1),dx=e.deltaX*px,dy=e.deltaY*px;
+   if(Math.abs(dx)>Math.abs(dy)){setWin(z0+dx/Math.max(1,cv.clientWidth-PL-PR)*s,s);return;}   // sideways scroll = pan
+   const f=plotFrac(e.clientX),ns=Math.min(1,Math.max(zMin(),s*Math.exp(dy*(e.ctrlKey?0.01:0.0015))));
+   setWin(z0+f*s-f*ns,ns);                                                                       // zoom around cursor
+  },{passive:false});
+
+  function startGest(){
+   const v=Array.from(ptrs.values());
+   if(v.length===1)gest={n:1,x:v[0].x,a:z0,s:z1-z0};
+   else if(v.length>=2){multi=true;
+    gest={n:2,d:Math.max(20,Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y)),f:z0+plotFrac((v[0].x+v[1].x)/2)*(z1-z0),s:z1-z0};}
+   else gest=null;
+   plotEl.classList.toggle("drag",!!gest);
+  }
+  cv.addEventListener("pointerdown",function(e){
+   if(cur.gtype!==0||(e.pointerType==="mouse"&&e.button!==0))return;
+   try{cv.setPointerCapture(e.pointerId);}catch(_){}
+   ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t0:Date.now()});
+   startGest();
+  });
+  cv.addEventListener("pointermove",function(e){
+   const p=ptrs.get(e.pointerId);if(!p||!gest)return;
+   p.x=e.clientX;p.y=e.clientY;
+   const v=Array.from(ptrs.values());
+   if(gest.n===1){setWin(gest.a-(p.x-gest.x)/Math.max(1,cv.clientWidth-PL-PR)*gest.s,gest.s);}
+   else if(v.length>=2){
+    const d=Math.max(20,Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y)),f=plotFrac((v[0].x+v[1].x)/2),
+          s=Math.min(1,Math.max(zMin(),gest.s*gest.d/d));
+    setWin(gest.f-f*s,s);}
+  });
+  function endPtr(e){
+   const p=ptrs.get(e.pointerId);if(!p)return;
+   ptrs.delete(e.pointerId);
+   if(ptrs.size===0){
+    if(e.type==="pointerup"&&!multi&&Date.now()-p.t0<300&&Math.hypot(e.clientX-p.x0,e.clientY-p.y0)<10){
+     const now=Date.now();
+     if(now-lastTap<350&&Math.abs(e.clientX-lastTapX)<30){lastTap=0;resetZoom(true);}   // double-tap / double-click
+     else{lastTap=now;lastTapX=e.clientX;}}
+    multi=false;}
+   startGest();
+  }
+  cv.addEventListener("pointerup",endPtr);
+  cv.addEventListener("pointercancel",endPtr);
+  cv.addEventListener("touchmove",function(e){if(cur.gtype===0&&e.touches.length>1)e.preventDefault();},{passive:false});
+  cv.addEventListener("gesturestart",function(e){if(cur.gtype===0)e.preventDefault();});   // iOS: stop page zoom on pinch
 
   function clearHist(){if(view===0){hist=[[],[],[],[]];histT=[];}yLo=null;drawChart();}
 
