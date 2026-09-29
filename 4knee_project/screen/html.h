@@ -71,6 +71,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans T
 body.light .big,body.light .small{stroke:rgba(255,255,255,.9);}
  #specA,#specB,#specC{opacity:var(--gloss);}
  #mottle{opacity:var(--mott);}
+#p0{fill:var(--c0);}#p1{fill:var(--c1);}#p2{fill:var(--c2);}#p3{fill:var(--c3);}
+#pads circle{transition:opacity .22s ease;}
 
 /* trend chart */
 .chartcard{padding:12px;display:flex;flex-direction:column;}
@@ -283,9 +285,8 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
   <div class="rangebtns" id="rangeBtns">
    <button class="rbtn active" data-r="0" id="rLive" onclick="setView(0)">Real time</button>
    <button class="rbtn" data-r="1" id="r1s" onclick="setView(1)">1 sec</button>
-   <button class="rbtn" data-r="2" id="r1m" onclick="setView(2)">1 min</button>
-   <button class="rbtn" data-r="3" id="r1h" onclick="setView(3)">1 hour</button>
-   <button class="rbtn" data-r="4" id="r1d" onclick="setView(4)">1 day</button>
+   <button class="rbtn" data-r="2" id="r5s" onclick="setView(2)">5 sec</button>
+   <button class="rbtn" data-r="3" id="r10s" onclick="setView(3)">10 sec</button>
   </div>
   <div class="plot" id="plot"><canvas id="chart"></canvas><button class="zreset" id="zReset" onclick="resetZoom(true)" title="Reset zoom" aria-label="Reset zoom"></button></div>
   <div class="legend">
@@ -338,16 +339,17 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
 <script>
 const LOAD_WARN=20000, LOAD_DANGER=35000;
 const T={
- 0:{title:"จอวัดน้ำหนักลงเข่า",sub:"เซ็นเซอร์วัดแรงกด 4 จุด",kTitle:"การกระจายแรงกด",kSub:"ผิวกระดูกหน้าแข้ง · มุมบน",live:"สด",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",gtype:"รูปแบบกราฟ",gtypesub:"กราฟแท่งแสดงเฉพาะข้อมูลสด",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง",nosync:"ยังไม่ได้ซิงค์เวลา",nodata:"ไม่มีข้อมูล",data:"ข้อมูล",keep:"ล้างอัตโนมัติ",keepsub:"ลบข้อมูลเก่าโดยอัตโนมัติ",dl:"ดาวน์โหลด CSV",del:"ลบทั้งหมด",confirmDel:"ลบข้อมูลทั้งหมด?",rlive:"เรียลไทม์",r1s:"1 วินาที",r1m:"1 นาที",r1h:"1 ชั่วโมง",r1d:"1 วัน",loading:"กำลังโหลด…",rz:"รีเซ็ตการซูม"},
- 1:{title:"Knee Load Monitor",sub:"4-channel tibial load sensor",kTitle:"Load distribution",kSub:"Tibial plateau · top view",live:"LIVE",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",gtype:"Graph type",gtypesub:"Bar graph shows live data only",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar",nosync:"No time sync yet",nodata:"No data",data:"Data",keep:"Auto-clear",keepsub:"Old data is removed automatically",dl:"Download CSV",del:"Delete all",confirmDel:"Delete all data?",rlive:"Real time",r1s:"1 sec",r1m:"1 min",r1h:"1 hour",r1d:"1 day",loading:"Loading…",rz:"Reset zoom"}
+ 0:{title:"จอวัดน้ำหนักลงเข่า",sub:"เซ็นเซอร์วัดแรงกด 4 จุด",kTitle:"การกระจายแรงกด",kSub:"ผิวกระดูกหน้าแข้ง · มุมบน",live:"สด",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",gtype:"รูปแบบกราฟ",gtypesub:"กราฟแท่งแสดงเฉพาะข้อมูลสด",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง",nosync:"ยังไม่ได้ซิงค์เวลา",nodata:"ไม่มีข้อมูล",data:"ข้อมูล",keep:"ล้างอัตโนมัติ",keepsub:"ลบข้อมูลเก่าโดยอัตโนมัติ",dl:"ดาวน์โหลด CSV",del:"ลบทั้งหมด",confirmDel:"ลบข้อมูลทั้งหมด?",rlive:"เรียลไทม์",r1s:"1 วินาที",r5s:"5 วินาที",r10s:"10 วินาที",loading:"กำลังโหลด…",rz:"รีเซ็ตการซูม"},
+ 1:{title:"Knee Load Monitor",sub:"4-channel tibial load sensor",kTitle:"Load distribution",kSub:"Tibial plateau · top view",live:"LIVE",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",gtype:"Graph type",gtypesub:"Bar graph shows live data only",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar",nosync:"No time sync yet",nodata:"No data",data:"Data",keep:"Auto-clear",keepsub:"Old data is removed automatically",dl:"Download CSV",del:"Delete all",confirmDel:"Delete all data?",rlive:"Real time",r1s:"1 sec",r5s:"5 sec",r10s:"10 sec",loading:"Loading…",rz:"Reset zoom"}
 };
 const UNITS=[{f:1,s:"g",d:0},{f:0.00980665,s:"N",d:1},{f:0.001,s:"kg",d:2}];
 let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
 
   const POLL_MS=1000;
   const HIST=120;
-  const HKEY=["","s","m","h","d"],HLBL=["","-2m","-2h","-5d","-120d"];
-  const HDUR=[0,120,7200,432000,10368000];          // seconds covered by each history view
+  const HKEY=["","1","5","10"],HLBL=["","-2m","-10m","-20m"];
+  const HDUR=[0,120,600,1200];          // seconds covered by each history view
+  const PADXY=[[92,84],[228,84],[92,172],[228,172]];
   let hist=[[],[],[],[]], histT=[], mat=0;
   let view=0;
   let histView=[[],[],[],[]];
@@ -382,7 +384,7 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    lblGType.firstChild.nodeValue=t.gtype;lblGTypeSub.textContent=t.gtypesub;
    lblData.textContent=t.data;lblKeep.firstChild.nodeValue=t.keep;lblKeepSub.textContent=t.keepsub;
    btnDownload.textContent=t.dl;btnDelete.textContent=t.del;
-   rLive.textContent=t.rlive;r1s.textContent=t.r1s;r1m.textContent=t.r1m;r1h.textContent=t.r1h;r1d.textContent=t.r1d;
+   rLive.textContent=t.rlive;r1s.textContent=t.r1s;r5s.textContent=t.r5s;r10s.textContent=t.r10s;
    gLine.title=t.line;gLine.setAttribute("aria-label",t.line);
    gBar.title=t.bar;gBar.setAttribute("aria-label",t.bar);
    zBtn.title=t.rz;zBtn.setAttribute("aria-label",t.rz);}
@@ -435,7 +437,6 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    for(let i=0;i<4;i++){
     const c=rawColor(w[i]),txt=(w[i]*u.f).toFixed(u.d);
     const s=document.getElementById("s"+i);s.textContent=txt;s.setAttribute("fill",c);
-    document.getElementById("p"+i).setAttribute("fill",c);
     document.getElementById("lv"+i).textContent=txt;
    }
    const lat=w[0]+w[2], med=w[1]+w[3];
@@ -446,9 +447,18 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    const full=LOAD_DANGER*2;
    heatL.setAttribute("opacity",Math.min(.45,lat/full*.8).toFixed(3));
    heatM.setAttribute("opacity",Math.min(.45,med/full*.8).toFixed(3));
-   const tot=w[0]+w[1]+w[2]+w[3];let nx=0,ny=0;
-   if(tot>0){nx=(-w[0]+w[1]-w[2]+w[3])/tot;ny=(-w[0]-w[1]+w[2]+w[3])/tot;}
-   dot.style.left=(50+nx*40)+"%";dot.style.top=(50+ny*34)+"%";
+    const MIN_TOT=4, RAMP=6; 
+    const tot=w[0]+w[1]+w[2]+w[3]; let nx=0, ny=0;
+    if(tot>MIN_TOT){
+      const s=Math.min(1,(tot-MIN_TOT)/RAMP);      
+      nx=s*(-w[0]+w[1]-w[2]+w[3])/tot;
+      ny=s*(-w[0]-w[1]+w[2]+w[3])/tot;
+    }
+    dot.style.left=((160+68*nx)/320*100)+"%";
+    dot.style.top =((128+44*ny)/250*100)+"%";
+    dot.style.opacity=tot>MIN_TOT?1:.35; 
+   const cx=Math.min(228,Math.max(92,160+128*nx)),cy=Math.min(172,Math.max(84,125+85*ny));
+   for(let i=0;i<4;i++)document.getElementById("p"+i).style.opacity=Math.max(.15,1-Math.hypot(cx-PADXY[i][0],cy-PADXY[i][1])/140).toFixed(2);
    for(let i=0;i<4;i++){hist[i].push(w[i]);if(hist[i].length>HIST)hist[i].shift();}
    histT.push(Date.now());if(histT.length>HIST)histT.shift();
    if(view===0)drawChart();

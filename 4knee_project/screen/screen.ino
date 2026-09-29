@@ -32,12 +32,12 @@ unsigned long       lastRead      = 0;
 const unsigned long READ_INTERVAL = 10;
 
 const int           HIST_NB      = 120;
-const uint32_t      HIST_STEP[4] = {1UL, 60UL, 3600UL, 86400UL};
-float               hist[4][4][HIST_NB];
-double              histSum[4][4];
-uint32_t            histCnt[4]   = {0};
-uint32_t            histSlot[4]  = {0};
-uint8_t             histHead[4]  = {0};
+const uint32_t      HIST_STEP[3] = {1UL, 5UL, 10UL};
+float               hist[3][4][HIST_NB];
+double              histSum[3][4];
+uint32_t            histCnt[3]   = {0};
+uint32_t            histSlot[3]  = {0};
+uint8_t             histHead[3]  = {0};
 
 uint8_t             keepMode     = 0;             
 unsigned long       lastPurge    = 0;
@@ -96,15 +96,12 @@ void savegraph() {
 
 
 void readSensors() {
-  knee.knee1 = analogRead(k[0])*100.0/4095.0;
-  knee.knee2 = analogRead(k[1])*100.0/4095.0;
-  knee.knee3 = analogRead(k[2])*100.0/4095.0;
-  knee.knee4 = analogRead(k[3])*100.0/4095.0;
+  knee.knee1 = analogRead(k[0])*100/4095;
+  knee.knee2 = analogRead(k[1])*100/4095;
+  knee.knee3 = analogRead(k[2])*100/4095;
+  knee.knee4 = analogRead(k[3])*100/4095;
 
-  // knee.knee1 = random(0,100);
-  // knee.knee2 = random(0,100);
-  // knee.knee3 = random(0,100);
-  // knee.knee4 = random(0,100);
+
 
   lastRecvTime = millis();
   Serial.printf("knee: %.2f %.2f %.2f %.2f\n",
@@ -117,14 +114,14 @@ bool isConnected() {
 
 
 void inithistory() {
-  for (int s=0;s<4;s++)
+  for (int s=0;s<3;s++)
     for (int i=0;i<4;i++)
       for (int b=0;b<HIST_NB;b++) hist[s][i][b] = -1;
 }
 
 void addhistory(const Recive_data &x) {
   uint32_t sec = millis() / 1000;
-  for (int s=0;s<4;s++) {
+  for (int s=0;s<3;s++) {
     uint32_t slot = sec / HIST_STEP[s];
     if (slot != histSlot[s]) {
       uint32_t gap = slot - histSlot[s];
@@ -202,10 +199,9 @@ void handleDownload() {
 void handleHistory() {
   int s = 0;
   if (server.hasArg("r")) {
-    char c = server.arg("r").charAt(0);
-    if (c=='m') s = 1;
-    else if (c=='h') s = 2;
-    else if (c=='d') s = 3;
+    int r = server.arg("r").toInt();
+    if (r==5) s = 1;
+    else if (r==10) s = 2;
   }
   String j = "{\"k\":[";
   for (int i=0;i<4;i++){
