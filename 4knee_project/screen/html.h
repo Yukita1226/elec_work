@@ -26,19 +26,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans T
 .sub{font-size:.7rem;color:var(--muted);margin-top:2px;letter-spacing:.2px;}
 .hright{display:flex;align-items:center;gap:10px;flex:none;}
 .clock{font-size:.8rem;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.6px;}
-.gear{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1.15rem;cursor:pointer;box-shadow:var(--shadow);transition:.15s;}
+.gear{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1.15rem;cursor:pointer;box-shadow:var(--shadow);transition:.15s;display:inline-flex;align-items:center;justify-content:center;}
 .gear:active{transform:scale(.92);}
-.statusbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.ibtn{flex:none;width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:.15s;}
+.ibtn:active{transform:scale(.92);}
+.gear svg,.ibtn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.gear:disabled,.ibtn:disabled{opacity:.45;}
+.capH{display:none;}
+.statusbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
 .status{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;font-size:.76rem;font-weight:600;letter-spacing:.2px;border:1px solid transparent;}
 .status.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft);}
 .status.off{background:var(--danger-soft);color:var(--danger);border-color:var(--danger-soft);}
 .status::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;}
 .status.on::before{animation:pulse 1.6s infinite;}
+.calbtn{margin-left:auto;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:10px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);font-size:.76rem;font-weight:700;letter-spacing:.2px;font-family:inherit;cursor:pointer;box-shadow:var(--shadow);transition:.15s;}
+.calbtn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;}
+.calbtn.on{background:var(--accent);color:#fff;}
+.calbtn:active{transform:scale(.95);}
 @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 currentColor}50%{opacity:.35}}
 
 /* cards */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
-.cardhead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:11px 13px 0;}
+.cardhead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px 0;}
+.kh{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.kright{display:flex;align-items:center;gap:8px;flex:none;}
 .ttl,.chead h3{font-size:.68rem;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);}
 .tagline{font-size:.66rem;color:var(--muted);opacity:.85;}
 
@@ -57,11 +68,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans T
 .ori-b{bottom:-12px;left:50%;transform:translateX(-50%);}
 .ori-l{left:-10px;top:50%;writing-mode:vertical-rl;transform:translateY(-50%) rotate(180deg);}
 .ori-r{right:-10px;top:50%;writing-mode:vertical-rl;transform:translateY(-50%);}
-.dot{position:absolute;width:22px;height:22px;left:50%;top:50%;transform:translate(-50%,-50%);transition:left .22s ease,top .22s ease;pointer-events:none;z-index:3;}
-.dot::before{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(255,255,255,.85),0 0 16px 4px var(--accent);}
-.dot::after{content:"";position:absolute;inset:-9px;border:1.5px dashed var(--accent);border-radius:50%;opacity:.7;}
 .copnote{text-align:center;font-size:.6rem;color:var(--muted);letter-spacing:1.4px;font-weight:600;margin-top:14px;}
 .copnote::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:1px;}
+
+/* dots (inside the SVG so screen capture includes them) */
+.sdot{transition:transform .22s ease,opacity .22s ease;}
+#copDot{color:var(--accent);}
+.dglow{fill:currentColor;opacity:.75;}
+.dcore{fill:currentColor;stroke:rgba(255,255,255,.85);stroke-width:2.4;}
+.ring{fill:none;stroke:currentColor;stroke-width:1.2;stroke-dasharray:3 3;opacity:.7;}
+.trk{stroke:var(--bink);stroke-width:1.4;stroke-dasharray:3 4;opacity:.45;}
+.zero{stroke:var(--bink);stroke-width:2;opacity:.55;}
+.sgn{font-size:13px;font-weight:800;fill:var(--bink);opacity:.6;}
+#splitG{display:none;}
+body.split #splitG{display:inline;}
+body.split #pads,body.split #copDot{display:none;}
 
 .big{font-weight:700;font-size:30px;font-variant-numeric:tabular-nums;paint-order:stroke;stroke:rgba(0,0,0,.45);stroke-width:3px;stroke-linejoin:round;}
 .unit{font-size:10px;font-weight:600;letter-spacing:2px;fill:var(--bink);opacity:.75;}
@@ -72,6 +93,7 @@ body.light .big,body.light .small{stroke:rgba(255,255,255,.9);}
  #specA,#specB,#specC{opacity:var(--gloss);}
  #mottle{opacity:var(--mott);}
 #p0{fill:var(--c0);}#p1{fill:var(--c1);}#p2{fill:var(--c2);}#p3{fill:var(--c3);}
+#s0{fill:var(--c0);}#s1{fill:var(--c1);}#s2{fill:var(--c2);}#s3{fill:var(--c3);}
 #pads circle{transition:opacity .22s ease;}
 
 /* trend chart */
@@ -84,7 +106,8 @@ body.light .big,body.light .small{stroke:rgba(255,255,255,.9);}
 .gbtn{width:34px;height:28px;display:flex;align-items:center;justify-content:center;border:none;border-radius:7px;background:transparent;color:var(--muted);cursor:pointer;transition:.15s;}
 .gbtn svg{width:17px;height:17px;}
 .gbtn polyline{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
-.gbtn rect{fill:currentColor;}
+.gbtn rect,.gbtn circle{fill:currentColor;}
+.gbtn line{stroke:currentColor;stroke-width:2;stroke-linecap:round;opacity:.55;}
 .gbtn.active{background:var(--surface);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.2);}
 .gbtn:active{transform:scale(.92);}
 .plot{position:relative;height:180px;user-select:none;-webkit-user-select:none;}
@@ -119,18 +142,22 @@ body.light .big,body.light .small{stroke:rgba(255,255,255,.9);}
 .rlabel{font-size:.95rem;font-weight:500;}
 .rlabel small{display:block;font-size:.72rem;color:var(--muted);font-weight:400;margin-top:2px;}
 select{appearance:none;-webkit-appearance:none;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 34px 10px 12px;font-size:.9rem;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;min-width:140px;}
+.num{width:140px;flex:none;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:1rem;text-align:right;font-variant-numeric:tabular-nums;font-family:inherit;}
+.num:focus{outline:none;border-color:var(--accent);}
 .toggle{position:relative;width:50px;height:28px;flex:none;}
 .toggle input{opacity:0;width:0;height:0;}
 .track{position:absolute;inset:0;background:var(--border);border-radius:999px;cursor:pointer;transition:.2s;}
 .track::before{content:"";position:absolute;height:22px;width:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
 .toggle input:checked + .track{background:var(--accent);}
 .toggle input:checked + .track::before{transform:translateX(22px);}
-.save{margin-top:22px;width:100%;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:1rem;font-weight:600;cursor:pointer;}
+.save{margin-top:14px;width:100%;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:1rem;font-weight:600;cursor:pointer;}
 .save:active{transform:scale(.98);}
 .dbtn{flex:1;padding:13px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:.85rem;font-weight:600;cursor:pointer;}
 .dbtn.danger{border-color:var(--danger);color:var(--danger);}
+.dbtn.acc{border-color:var(--accent);color:var(--accent);}
 .dbtn:active{transform:scale(.97);}
 .seclabel{font-size:.7rem;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;font-weight:700;padding:18px 2px 2px;}
+.err{color:var(--danger);font-size:.8rem;font-weight:600;min-height:1.2em;padding:8px 2px 0;}
 
 @media (orientation:landscape) and (min-width:640px){
  body{padding:12px 16px 16px;}
@@ -140,6 +167,8 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
  .kneecard .vp{flex:1;display:flex;flex-direction:column;justify-content:center;}
  .canvas{width:min(100%,460px,max(240px,calc((100vh - 210px) * 1.28)));}
  .plot{flex:1;height:auto;min-height:140px;}
+ .capH{display:inline-flex;}
+ .capK{display:none;}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 </style></head><body>
@@ -151,13 +180,27 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
    <div><h1 id="title">Knee Load Monitor</h1><div class="sub" id="sub">4-channel tibial load sensor</div></div>
   </div>
   <div class="hright"><span class="clock" id="clock">--:--</span>
-   <button class="gear" onclick="openPanel()">&#9881;</button></div>
+   <button class="gear" onclick="openPanel()">&#9881;</button>
+   <button class="gear capH" id="capH" onclick="capture()" title="Capture screen" aria-label="Capture screen"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+  </div>
  </div>
- <div class="statusbar"><div id="status" class="status off">...</div></div>
+ <div class="statusbar">
+  <div id="status" class="status off">...</div>
+  <button class="calbtn" id="calBtn" onclick="calibrate()" title="Calibrate" aria-label="Calibrate"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg><span id="calTxt">Calibrate</span></button>
+ </div>
 
  <div class="main">
  <div class="card kneecard">
- <div class="cardhead"><span class="ttl" id="kTitle">Load distribution</span><span class="tagline" id="kSub">Tibial plateau &middot; top view</span></div>
+ <div class="cardhead">
+  <div class="kh"><span class="ttl" id="kTitle">Load distribution</span><span class="tagline" id="kSub">Tibial plateau &middot; top view</span></div>
+  <div class="kright">
+   <div class="gtog" role="group">
+    <button class="gbtn active" id="mode4" onclick="setMode(0)" title="4 points" aria-label="4 points"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="2.8"/><circle cx="17" cy="7" r="2.8"/><circle cx="7" cy="17" r="2.8"/><circle cx="17" cy="17" r="2.8"/></svg></button>
+    <button class="gbtn" id="mode2" onclick="setMode(1)" title="2 sides" aria-label="2 sides"><svg viewBox="0 0 24 24"><line x1="8" y1="4" x2="8" y2="20"/><line x1="16" y1="4" x2="16" y2="20"/><circle cx="8" cy="9" r="2.8"/><circle cx="16" cy="15" r="2.8"/></svg></button>
+   </div>
+   <button class="ibtn capK" id="capK" onclick="capture()" title="Capture screen" aria-label="Capture screen"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+  </div>
+ </div>
  <div class="vp">
  <div class="canvas">
   <svg class="knee" viewBox="0 0 320 250">
@@ -190,7 +233,7 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
      <feComponentTransfer><feFuncA type="linear" slope="0.28"/></feComponentTransfer>
     </filter>
     <filter id="fBlur6"><feGaussianBlur stdDeviation="6"/></filter>
-    <filter id="fBlur3"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="fBlur3" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="3"/></filter>
     <filter id="fDrop" x="-25%" y="-25%" width="150%" height="160%">
      <feGaussianBlur stdDeviation="9"/>
     </filter>
@@ -245,19 +288,43 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
     <circle id="p2" cx="92"  cy="172" r="6.5" fill="#34d399" stroke="rgba(0,0,0,.55)" stroke-width="2"/>
     <circle id="p3" cx="228" cy="172" r="6.5" fill="#34d399" stroke="rgba(0,0,0,.55)" stroke-width="2"/>
    </g>
+
+   <!-- 2-side mode: one vertical track + dot per side, center = 0, up = +, down = - -->
+   <g id="splitG">
+    <line class="trk"  x1="92"  y1="70" x2="92"  y2="174"/>
+    <line class="trk"  x1="228" y1="70" x2="228" y2="174"/>
+    <line class="zero" x1="76"  y1="122" x2="108" y2="122"/>
+    <line class="zero" x1="212" y1="122" x2="244" y2="122"/>
+    <text class="sgn" x="92"  y="66"  text-anchor="middle">+</text>
+    <text class="sgn" x="228" y="66"  text-anchor="middle">+</text>
+    <text class="sgn" x="92"  y="188" text-anchor="middle">&#8722;</text>
+    <text class="sgn" x="228" y="188" text-anchor="middle">&#8722;</text>
+    <g id="sdL" class="sdot" style="transform:translate(92px,122px)">
+     <circle class="dglow" r="9" filter="url(#fBlur3)"/><circle class="dcore" r="6"/><circle class="ring" r="12"/>
+    </g>
+    <g id="sdR" class="sdot" style="transform:translate(228px,122px)">
+     <circle class="dglow" r="9" filter="url(#fBlur3)"/><circle class="dcore" r="6"/><circle class="ring" r="12"/>
+    </g>
+   </g>
+
    <g text-anchor="middle">
     <text class="tag" x="70"  y="50">AL</text>
     <text class="tag" x="250" y="50">AM</text>
     <text class="tag" x="70"  y="206">PL</text>
     <text class="tag" x="250" y="206">PM</text>
-    <text class="small" id="s0" x="104" y="50"  fill="#34d399">0</text>
-    <text class="small" id="s1" x="216" y="50"  fill="#34d399">0</text>
-    <text class="small" id="s2" x="104" y="206" fill="#34d399">0</text>
-    <text class="small" id="s3" x="216" y="206" fill="#34d399">0</text>
+    <text class="small" id="s0" x="104" y="50">0</text>
+    <text class="small" id="s1" x="216" y="50">0</text>
+    <text class="small" id="s2" x="104" y="206">0</text>
+    <text class="small" id="s3" x="216" y="206">0</text>
     <text class="big"   id="bigL" x="92"  y="132" fill="#34d399">0</text>
     <text class="big"   id="bigM" x="228" y="132" fill="#34d399">0</text>
     <text class="unit"  id="uL" x="92"  y="150">g</text>
     <text class="unit"  id="uM" x="228" y="150">g</text>
+   </g>
+
+   <!-- 4-point mode: center of load -->
+   <g id="copDot" class="sdot" style="transform:translate(160px,128px)">
+    <circle class="dglow" r="9" filter="url(#fBlur3)"/><circle class="dcore" r="6"/><circle class="ring" r="12"/>
    </g>
   </svg>
 
@@ -265,7 +332,6 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
   <span class="ori ori-b" id="oriB">POSTERIOR</span>
   <span class="ori ori-l" id="oriL">LATERAL</span>
   <span class="ori ori-r" id="oriR">MEDIAL</span>
-  <div class="dot" id="dot"></div>
  </div>
  <div class="copnote" id="copnote">CENTER OF LOAD</div>
  </div>
@@ -316,6 +382,8 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
    <select id="selMetric"><option value="0">Gram (g)</option><option value="1">Newton (N)</option><option value="2">Kilogram (kg)</option></select></div>
   <div class="row"><span class="rlabel" id="lblGType">Graph type<small id="lblGTypeSub">Bar graph shows live data only</small></span>
    <select id="selGType"><option value="0">Line</option><option value="1">Bar</option></select></div>
+  <div class="row"><span class="rlabel" id="lblMode">Display mode<small id="lblModeSub">Stored on this phone only</small></span>
+   <select id="selMode" onchange="setMode(this.value)"><option value="0">4 points</option><option value="1">2 sides</option></select></div>
   <div class="row"><span class="rlabel" id="lblMat">Material<small id="lblMatSub">Stored on this phone only</small></span>
    <select id="selMat" onchange="applyMat(this.value)"><option value="0">Bone</option><option value="1">Trial insert</option></select></div>
 
@@ -332,18 +400,48 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface);color:v
    <button class="dbtn danger" id="btnDelete" onclick="deleteCsv()">Delete all</button>
   </div>
 
+  <div class="seclabel" id="lblAdv">Advanced</div>
+  <div class="row"><span class="rlabel" id="lblMin">Minimum (g)<small id="lblMinSub">Value at sensor 0%</small></span>
+   <input class="num" type="number" step="any" id="inMin"></div>
+  <div class="row"><span class="rlabel" id="lblMax">Maximum (g)<small id="lblMaxSub">Value at sensor 100%</small></span>
+   <input class="num" type="number" step="any" id="inMax"></div>
+  <div class="row"><span class="rlabel" id="lblRed">Red level (%)<small id="lblRedSub">Yellow starts at 75% of this · this phone only</small></span>
+   <input class="num" type="number" min="1" max="100" step="1" id="inRed"></div>
+  <div class="row" style="border-bottom:none"><span class="rlabel" id="lblCal">Zero calibration<small id="lblCalSub">Not calibrated</small></span></div>
+  <div class="row" style="border-bottom:none;gap:10px;padding-top:0">
+   <button class="dbtn acc" id="btnCal" onclick="calibrate()">Calibrate</button>
+   <button class="dbtn" id="btnCalReset" onclick="resetCal()">Reset</button>
+  </div>
+
+  <div class="err" id="advErr"></div>
   <button class="save" id="btnSave" onclick="saveAndClose()">Save &amp; Close</button>
  </div>
 </div>
 
 <script>
-const LOAD_WARN=20000, LOAD_DANGER=35000;
+// color levels are a % of full scale = max(|min|,|max|) per node
+const WARN_OF_RED=0.75;                 // yellow starts at 75% of the red level
+let redPct=80;                          // red level in %, set in Advanced settings (stored on this phone)
 const T={
- 0:{title:"จอวัดน้ำหนักเข่า",sub:"เซ็นเซอร์วัดแรงกด 4 จุด",kTitle:"การกระจายแรงกด",kSub:"ผิวกระดูกหน้าแข้ง · มุมบน",live:"สด",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",gtype:"รูปแบบกราฟ",gtypesub:"กราฟแท่งแสดงเฉพาะข้อมูลสด",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง",nosync:"ยังไม่ได้ซิงค์เวลา",nodata:"ไม่มีข้อมูล",data:"ข้อมูล",keep:"ล้างอัตโนมัติ",keepsub:"ลบข้อมูลเก่าโดยอัตโนมัติ",dl:"ดาวน์โหลด CSV",del:"ลบทั้งหมด",confirmDel:"ลบข้อมูลทั้งหมด?",rlive:"เรียลไทม์",r1s:"1 วินาที",r5s:"5 วินาที",r10s:"10 วินาที",loading:"กำลังโหลด…",rz:"รีเซ็ตการซูม"},
- 1:{title:"Knee Load Monitor",sub:"4-channel tibial load sensor",kTitle:"Load distribution",kSub:"Tibial plateau · top view",live:"LIVE",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",gtype:"Graph type",gtypesub:"Bar graph shows live data only",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar",nosync:"No time sync yet",nodata:"No data",data:"Data",keep:"Auto-clear",keepsub:"Old data is removed automatically",dl:"Download CSV",del:"Delete all",confirmDel:"Delete all data?",rlive:"Real time",r1s:"1 sec",r5s:"5 sec",r10s:"10 sec",loading:"Loading…",rz:"Reset zoom"}
+ 0:{title:"จอวัดน้ำหนักเข่า",sub:"เซ็นเซอร์วัดแรงกด 4 จุด",kTitle:"การกระจายแรงกด",kSub:"ผิวกระดูกหน้าแข้ง · มุมบน",live:"สด",settings:"ตั้งค่า",theme:"ธีม",auto:"ธีมอัตโนมัติ",lang:"ภาษา",unit:"หน่วย",save:"บันทึกและปิด",on:"เชื่อมต่อแล้ว",off:"ขาดการเชื่อมต่อ",ant:"ด้านหน้า",post:"ด้านหลัง",med:"ด้านใน",lat:"ด้านนอก",cop:"จุดศูนย์กลางแรงกด",chart:"กราฟแรงกดตามเวลา",gtype:"รูปแบบกราฟ",gtypesub:"กราฟแท่งแสดงเฉพาะข้อมูลสด",mat:"พื้นผิว",matsub:"บันทึกในเครื่องนี้เท่านั้น",m0:"กระดูก",m1:"แผ่นทดลอง",line:"เส้น",bar:"แท่ง",nosync:"ยังไม่ได้ซิงค์เวลา",nodata:"ไม่มีข้อมูล",data:"ข้อมูล",keep:"ล้างอัตโนมัติ",keepsub:"ลบข้อมูลเก่าโดยอัตโนมัติ",dl:"ดาวน์โหลด CSV",del:"ลบทั้งหมด",confirmDel:"ลบข้อมูลทั้งหมด?",rlive:"เรียลไทม์",r1s:"1 วินาที",r5s:"5 วินาที",r10s:"10 วินาที",loading:"กำลังโหลด…",rz:"รีเซ็ตการซูม",
+    mode:"โหมดแสดงผล",md0:"4 จุด",md1:"2 ด้าน",copSplit:"กลาง = 0 · ขึ้น + · ลง −",
+    adv:"ขั้นสูง",min:"ค่าต่ำสุด",minsub:"ค่าเมื่อเซ็นเซอร์อยู่ที่ 0%",max:"ค่าสูงสุด",maxsub:"ค่าเมื่อเซ็นเซอร์อยู่ที่ 100%",
+    red:"ระดับสีแดง (%)",redsub:"สีเหลืองเริ่มที่ 75% ของค่านี้ · เก็บในเครื่องนี้",errRed:"ระดับสีแดงต้องอยู่ระหว่าง 1–100%",
+    errRange:"ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด",errSave:"บันทึกไม่สำเร็จ",
+    calib:"การปรับศูนย์",calNow:"ปรับศูนย์",calReset:"รีเซ็ต",cal:"ปรับศูนย์แล้ว",nocal:"ยังไม่ปรับศูนย์",calOff:"ค่าศูนย์",calNoData:"ยังไม่มีข้อมูลสด",
+    calTap:"แตะเพื่อปรับศูนย์ใหม่",calDone:"เรียบร้อย ✓",
+    cap:"บันทึกภาพหน้าจอ",capFail:"บันทึกภาพไม่สำเร็จ"},
+ 1:{title:"Knee Load Monitor",sub:"4-channel tibial load sensor",kTitle:"Load distribution",kSub:"Tibial plateau · top view",live:"LIVE",settings:"Settings",theme:"Theme",auto:"Auto theme",lang:"Language",unit:"Unit",save:"Save & Close",on:"Connected",off:"Disconnected",ant:"ANTERIOR",post:"POSTERIOR",med:"MEDIAL",lat:"LATERAL",cop:"CENTER OF LOAD",chart:"Load over time",gtype:"Graph type",gtypesub:"Bar graph shows live data only",mat:"Material",matsub:"Stored on this phone only",m0:"Bone",m1:"Trial insert",line:"Line",bar:"Bar",nosync:"No time sync yet",nodata:"No data",data:"Data",keep:"Auto-clear",keepsub:"Old data is removed automatically",dl:"Download CSV",del:"Delete all",confirmDel:"Delete all data?",rlive:"Real time",r1s:"1 sec",r5s:"5 sec",r10s:"10 sec",loading:"Loading…",rz:"Reset zoom",
+    mode:"Display mode",md0:"4 points",md1:"2 sides",copSplit:"CENTER = 0 · UP + · DOWN −",
+    adv:"Advanced",min:"Minimum",minsub:"Value at sensor 0%",max:"Maximum",maxsub:"Value at sensor 100%",
+    red:"Red level (%)",redsub:"Yellow starts at 75% of this · this phone only",errRed:"Red level must be 1–100%",
+    errRange:"Minimum must be less than maximum",errSave:"Could not save",
+    calib:"Zero calibration",calNow:"Calibrate",calReset:"Reset",cal:"Calibrated",nocal:"Not calibrated",calOff:"Zero",calNoData:"No live data yet",
+    calTap:"Tap to calibrate again",calDone:"Done ✓",
+    cap:"Capture screen",capFail:"Capture failed"}
 };
 const UNITS=[{f:1,s:"g",d:0},{f:0.00980665,s:"N",d:1},{f:0.001,s:"kg",d:2}];
-let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
+let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0,a:[0,100]};
 
   const POLL_MS=1000;
   const HIST=120;
@@ -364,10 +462,23 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
   const statusEl=document.getElementById("status");
   let lastLang=-1, busy=false;
 
+  // display mode (0 = 4 points, 1 = 2 sides) and zero calibration: stored on this phone
+  let mode=0;
+  let cal=[0,0,0,0], calOn=false;
+  const CAL_N=20;                                   // average of the last N live samples
+  let rawBuf=[], lastConn=false;
+  let panelMetric=0, panelMin="", panelMax="";
+
   try{mat=parseInt(localStorage.getItem("kneeMat")||"0",10)||0;}catch(e){}
+  try{mode=parseInt(localStorage.getItem("kneeMode")||"0",10)===1?1:0;}catch(e){}
+  try{const r=parseFloat(localStorage.getItem("kneeRed"));if(r>=1&&r<=100)redPct=r;}catch(e){}
+  try{const s=localStorage.getItem("kneeCal");
+   if(s){const a=JSON.parse(s);if(Array.isArray(a)&&a.length===4&&a.every(function(v){return isFinite(v);})){cal=a.map(Number);calOn=true;}}}catch(e){}
 
   async function getJson(u){const c=new AbortController(),t=setTimeout(function(){c.abort();},4000);
    try{return await (await fetch(u,{signal:c.signal})).json();}finally{clearTimeout(t);}}
+
+  function fmtV(v,u){let s=(v*u.f).toFixed(u.d);if(/^-0(\.0+)?$/.test(s))s=s.slice(1);return s;}
 
   function applyMat(v){mat=parseInt(v,10)||0;document.body.classList.toggle("poly",mat===1);
    try{localStorage.setItem("kneeMat",mat);}catch(e){}}
@@ -378,16 +489,25 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    lblLang.textContent=t.lang;lblUnit.textContent=t.unit;btnSave.textContent=t.save;
    lblMat.firstChild.nodeValue=t.mat;lblMatSub.textContent=t.matsub;
    selMat.options[0].text=t.m0;selMat.options[1].text=t.m1;
+   lblMode.firstChild.nodeValue=t.mode;lblModeSub.textContent=t.matsub;
+   selMode.options[0].text=t.md0;selMode.options[1].text=t.md1;
+   mode4.title=t.md0;mode4.setAttribute("aria-label",t.md0);
+   mode2.title=t.md1;mode2.setAttribute("aria-label",t.md1);
    oriT.textContent=t.ant;oriB.textContent=t.post;oriL.textContent=t.lat;oriR.textContent=t.med;
-   copnote.textContent=t.cop;chTitle.textContent=t.chart;
+   chTitle.textContent=t.chart;
    sub.textContent=t.sub;kTitle.textContent=t.kTitle;kSub.textContent=t.kSub;liveTag.textContent=t.live;
    lblGType.firstChild.nodeValue=t.gtype;lblGTypeSub.textContent=t.gtypesub;
    lblData.textContent=t.data;lblKeep.firstChild.nodeValue=t.keep;lblKeepSub.textContent=t.keepsub;
    btnDownload.textContent=t.dl;btnDelete.textContent=t.del;
+   lblAdv.textContent=t.adv;lblMinSub.textContent=t.minsub;lblMaxSub.textContent=t.maxsub;
+   lblRed.firstChild.nodeValue=t.red;lblRedSub.textContent=t.redsub;
+   lblCal.firstChild.nodeValue=t.calib;btnCal.textContent=t.calNow;btnCalReset.textContent=t.calReset;
+   capH.title=t.cap;capH.setAttribute("aria-label",t.cap);capK.title=t.cap;capK.setAttribute("aria-label",t.cap);
    rLive.textContent=t.rlive;r1s.textContent=t.r1s;r5s.textContent=t.r5s;r10s.textContent=t.r10s;
    gLine.title=t.line;gLine.setAttribute("aria-label",t.line);
    gBar.title=t.bar;gBar.setAttribute("aria-label",t.bar);
-   zBtn.title=t.rz;zBtn.setAttribute("aria-label",t.rz);}
+   zBtn.title=t.rz;zBtn.setAttribute("aria-label",t.rz);
+   setCopNote();updateCalUi();}
   function applyType(){const t=T[cur.lang];
    selGType.options[0].text=t.line;selGType.options[1].text=t.bar;
    const bar=(cur.gtype===1);
@@ -397,13 +517,44 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    plotEl.classList.toggle("lz",!bar);zoomUi();
    if(bar&&view!==0)setView(0);}
 
+  /* ---------- display mode ---------- */
+  function setCopNote(){const t=T[cur.lang];copnote.textContent=mode===1?t.copSplit:t.cop;}
+  function applyMode(){document.body.classList.toggle("split",mode===1);
+   mode4.classList.toggle("active",mode===0);mode2.classList.toggle("active",mode===1);setCopNote();}
+  function setMode(v){mode=parseInt(v,10)===1?1:0;
+   try{localStorage.setItem("kneeMode",mode);}catch(e){}
+   applyMode();if(panel.classList.contains("open"))selMode.value=mode;}
+
+  /* ---------- zero calibration (front-end only) ---------- */
+  let calMsgT=0;
+  function saveCal(){try{localStorage.setItem("kneeCal",calOn?JSON.stringify(cal):"");}catch(e){}}
+  function updateCalUi(){const t=T[cur.lang],u=UNITS[cur.metric];
+   calBtn.classList.toggle("on",calOn);
+   calBtn.title=calOn?t.calTap:t.calNow;calBtn.setAttribute("aria-label",calBtn.title);
+   if(!calMsgT)calTxt.textContent=calOn?t.cal:t.calNow;
+   lblCalSub.textContent=calOn?(t.calOff+": "+cal.map(function(v){return fmtV(v,u);}).join(" / ")+" "+u.s):t.nocal;}
+  function calFlash(m){calTxt.textContent=m;clearTimeout(calMsgT);
+   calMsgT=setTimeout(function(){calMsgT=0;updateCalUi();},1400);}
+  // one tap = calibrate right away (tap again to redo)
+  function calibrate(){const t=T[cur.lang];
+   if(!lastConn||!rawBuf.length){calFlash(t.calNoData);lblCalSub.textContent=t.calNoData;return;}
+   const o=[0,0,0,0];
+   for(const r of rawBuf)for(let i=0;i<4;i++)o[i]+=r[i];
+   cal=o.map(function(v){return v/rawBuf.length;});calOn=true;
+   saveCal();updateCalUi();calFlash(t.calDone);clearHist();}
+  function resetCal(){cal=[0,0,0,0];calOn=false;saveCal();updateCalUi();clearHist();}
+
   function setGType(v){if(cur.gtype===v)return;
    cur.gtype=v;gLock=Date.now();yLo=null;
    applyType();drawChart();
    fetch("/set?graphtype="+v).catch(function(){});}
 
-  function rawColor(v){const cs=getComputedStyle(document.body);
-   return cs.getPropertyValue(v>=LOAD_DANGER?"--danger":(v>=LOAD_WARN?"--warn":"--accent")).trim();}
+  /* ---------- load color by percentage ---------- */
+  function fullScale(){return Math.max(Math.abs(cur.a[0]),Math.abs(cur.a[1]))||1;}   // one node at 100%
+  function pctOf(v){return Math.abs(v)/fullScale()*100;}                            // node value -> %
+  function redAt(){return fullScale()*redPct/100;}                                 // node value where it turns red
+  function rawColor(v){const cs=getComputedStyle(document.body),p=pctOf(v);
+   return cs.getPropertyValue(p>=redPct?"--danger":(p>=redPct*WARN_OF_RED?"--warn":"--accent")).trim();}
 
   function setView(v){view=v;z0=0;z1=1;zoomUi();liveTag.style.visibility=(v===0)?"visible":"hidden";if(v===0)liveTag.textContent=T[cur.lang].live;
    document.querySelectorAll(".rbtn").forEach(function(b){b.classList.toggle("active",parseInt(b.dataset.r,10)===v);});
@@ -422,8 +573,9 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    try{const d=await getJson("/history?r="+HKEY[v]);
     if(id!==histReq||v!==view)return;
     if(d.err){histMsg=d.err==="notime"?T[cur.lang].nosync:T[cur.lang].nodata;histView=[[],[],[],[]];drawChart();return;}
-    histView=d.k;
-    let any=false;for(let i=0;i<4;i++)for(const x of histView[i])if(x>=0){any=true;break;}
+    // null = empty bucket; apply zero calibration to real values
+    histView=d.k.map(function(a,i){return a.map(function(x){return x===null?null:x-cal[i];});});
+    let any=false;for(let i=0;i<4;i++)for(const x of histView[i])if(x!==null){any=true;break;}
     histMsg=any?"":T[cur.lang].nodata;
     drawChart();
    }catch(e){if(id===histReq&&v===view){histMsg=T[cur.lang].nodata;drawChart();}}
@@ -433,32 +585,43 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    const t=T[cur.lang],u=UNITS[cur.metric];
    statusEl.textContent=d.connected?t.on:t.off;
    statusEl.className="status "+(d.connected?"on":"off");
-   const w=d.k;
+   lastConn=!!d.connected;
+   if(d.connected){rawBuf.push(d.k.slice());if(rawBuf.length>CAL_N)rawBuf.shift();}
+   const w=[0,1,2,3].map(function(i){return d.k[i]-cal[i];});
    for(let i=0;i<4;i++){
-    const c=rawColor(w[i]),txt=(w[i]*u.f).toFixed(u.d);
-    const s=document.getElementById("s"+i);s.textContent=txt;s.setAttribute("fill",c);
+    const txt=fmtV(w[i],u);
+    document.getElementById("s"+i).textContent=txt;
     document.getElementById("lv"+i).textContent=txt;
    }
    const lat=w[0]+w[2], med=w[1]+w[3];
-   bigL.textContent=(lat*u.f).toFixed(u.d);bigL.setAttribute("fill",rawColor(lat/2));
-   bigM.textContent=(med*u.f).toFixed(u.d);bigM.setAttribute("fill",rawColor(med/2));
+   bigL.textContent=fmtV(lat,u);bigL.setAttribute("fill",rawColor(lat/2));
+   bigM.textContent=fmtV(med,u);bigM.setAttribute("fill",rawColor(med/2));
    uL.textContent=u.s;uM.textContent=u.s;
    document.querySelectorAll(".lu").forEach(function(e){e.textContent=u.s;});
-   const full=LOAD_DANGER*2;
-   heatL.setAttribute("opacity",Math.min(.45,lat/full*.8).toFixed(3));
-   heatM.setAttribute("opacity",Math.min(.45,med/full*.8).toFixed(3));
-    const MIN_TOT=4, RAMP=6; 
-    const tot=w[0]+w[1]+w[2]+w[3]; let nx=0, ny=0;
+   const p=w.map(function(v){return Math.max(0,v);});       // negative load doesn't push the heat / center of load
+   // red glow grows with % and is strongest at the red level
+   heatL.setAttribute("opacity",(.45*Math.min(1,pctOf((p[0]+p[2])/2)/redPct)).toFixed(3));
+   heatM.setAttribute("opacity",(.45*Math.min(1,pctOf((p[1]+p[3])/2)/redPct)).toFixed(3));
+
+   if(mode===1){
+    // 2-side mode: center = 0, up = +, down = -, full travel at 2 x max(|min|,|max|)
+    const fs=2*fullScale();
+    const sy=function(v){return (122-50*Math.max(-1,Math.min(1,v/fs))).toFixed(1);};
+    sdL.style.transform="translate(92px,"+sy(lat)+"px)";sdL.style.color=rawColor(lat/2);
+    sdR.style.transform="translate(228px,"+sy(med)+"px)";sdR.style.color=rawColor(med/2);
+   }else{
+    const MIN_TOT=4, RAMP=6;
+    const tot=p[0]+p[1]+p[2]+p[3]; let nx=0, ny=0;
     if(tot>MIN_TOT){
-      const s=Math.min(1,(tot-MIN_TOT)/RAMP);      
-      nx=s*(-w[0]+w[1]-w[2]+w[3])/tot;
-      ny=s*(-w[0]-w[1]+w[2]+w[3])/tot;
+     const s=Math.min(1,(tot-MIN_TOT)/RAMP);
+     nx=s*(-p[0]+p[1]-p[2]+p[3])/tot;
+     ny=s*(-p[0]-p[1]+p[2]+p[3])/tot;
     }
-    dot.style.left=((160+68*nx)/320*100)+"%";
-    dot.style.top =((128+44*ny)/250*100)+"%";
-    dot.style.opacity=tot>MIN_TOT?1:.35; 
-   const cx=Math.min(228,Math.max(92,160+128*nx)),cy=Math.min(172,Math.max(84,125+85*ny));
-   for(let i=0;i<4;i++)document.getElementById("p"+i).style.opacity=Math.max(.15,1-Math.hypot(cx-PADXY[i][0],cy-PADXY[i][1])/140).toFixed(2);
+    copDot.style.transform="translate("+(160+68*nx).toFixed(1)+"px,"+(128+44*ny).toFixed(1)+"px)";
+    copDot.style.opacity=tot>MIN_TOT?1:.35;
+    const cx=Math.min(228,Math.max(92,160+128*nx)),cy=Math.min(172,Math.max(84,125+85*ny));
+    for(let i=0;i<4;i++)document.getElementById("p"+i).style.opacity=Math.max(.15,1-Math.hypot(cx-PADXY[i][0],cy-PADXY[i][1])/140).toFixed(2);
+   }
    for(let i=0;i<4;i++){hist[i].push(w[i]);if(hist[i].length>HIST)hist[i].shift();}
    histT.push(Date.now());if(histT.length>HIST)histT.shift();
    if(view===0)drawChart();
@@ -478,14 +641,15 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    let mn=Infinity,mx=-Infinity;
    const N=live?HIST:120,pad=1/(N-1),fa=z0-pad,fb=z1+pad;   // visible window, +1 sample each side
    for(let i=0;i<4;i++){const a=data[i];
-    if(bars){for(let k=a.length-1;k>=0;k--){if(live||a[k]>=0){if(a[k]<mn)mn=a[k];if(a[k]>mx)mx=a[k];break;}}}
-    else{for(let j=0;j<a.length;j++){const v=a[j];if(!live&&v<0)continue;
+    if(bars){for(let k=a.length-1;k>=0;k--){if(live||a[k]!==null){if(a[k]<mn)mn=a[k];if(a[k]>mx)mx=a[k];break;}}}
+    else{for(let j=0;j<a.length;j++){const v=a[j];if(!live&&v===null)continue;
      const f=(live?j+N-a.length:j)/(N-1);if(f<fa||f>fb)continue;
      if(v<mn)mn=v;if(v>mx)mx=v;}}
    }
    if(mn===Infinity){mn=0;mx=1000;}                 // no data yet
    const dataMin=mn;
    if(bars&&mn>0)mn=0;                               // bars always grow from 0
+   if(bars&&mx<0)mx=0;                               // ...also when all values are negative
    let span=mx-mn;
    const minSpan=Math.max(Math.abs(mx)*0.05,10);     // don't zoom into sensor noise (<10 g)
    if(span<minSpan){const c=(mx+mn)/2;mn=c-minSpan/2;mx=c+minSpan/2;span=minSpan;}
@@ -544,7 +708,11 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
     ctx.globalAlpha=.6;ctx.beginPath();ctx.moveTo(pl,y+.5);ctx.lineTo(pl+pw,y+.5);ctx.stroke();ctx.globalAlpha=1;
     ctx.fillText((k*stepD).toFixed(dec),pl-6,y+3.5);
    }
-   [[LOAD_WARN,cs.getPropertyValue("--warn").trim()],[LOAD_DANGER,cs.getPropertyValue("--danger").trim()]].forEach(function(tr){
+   // yellow / red level lines (% of full scale), mirrored below 0 when min is negative
+   const rA=redAt(),wC=cs.getPropertyValue("--warn").trim(),dC=cs.getPropertyValue("--danger").trim();
+   const lvls=[[rA*WARN_OF_RED,wC],[rA,dC]];
+   if(cur.a[0]<0)lvls.push([-rA*WARN_OF_RED,wC],[-rA,dC]);
+   lvls.forEach(function(tr){
     if(tr[0]<yLo||tr[0]>yHi)return;const y=yOf(tr[0]);
     ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle=tr[1];ctx.globalAlpha=.55;
     ctx.beginPath();ctx.moveTo(pl,y+.5);ctx.lineTo(pl+pw,y+.5);ctx.stroke();ctx.restore();
@@ -557,7 +725,7 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
     const gap=12,bw=(pw-gap*5)/4,names=["AL","AM","PL","PM"],base=yOf(0);
     ctx.textAlign="center";
     for(let i=0;i<4;i++){
-     const a=data[i];let v=0;for(let k=a.length-1;k>=0;k--){if(live||a[k]>=0){v=a[k];break;}}
+     const a=data[i];let v=0;for(let k=a.length-1;k>=0;k--){if(live||a[k]!==null){v=a[k];break;}}
      const y=yOf(v),x=pl+gap+i*(bw+gap);
      ctx.fillStyle=cols[i];ctx.fillRect(x,Math.min(y,base),bw,Math.max(Math.abs(base-y),1));
      ctx.fillStyle=cMuted;ctx.fillText(names[i],x+bw/2,h-4);
@@ -570,7 +738,7 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
      ctx.lineWidth=2;ctx.lineJoin="round";ctx.strokeStyle=cols[i];ctx.shadowColor=cols[i];ctx.shadowBlur=glow?7:0;ctx.beginPath();
      let pen=false,lx=0,ly=0;
      for(let j=0;j<a.length;j++){
-      if(!live&&a[j]<0){pen=false;continue;}           // -1 = empty bucket in history
+      if(!live&&a[j]===null){pen=false;continue;}      // null = empty bucket in history
       const x=xAt(j,a.length),y=yOf(a[j]);
       pen?ctx.lineTo(x,y):ctx.moveTo(x,y);pen=true;lx=x;ly=y;
      }
@@ -658,6 +826,100 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
 
   function clearHist(){if(view===0){hist=[[],[],[],[]];histT=[];}yLo=null;drawChart();}
 
+  /* ---------- screen capture: knee view + graph + values -> PNG ---------- */
+  let capBusy=false;
+  const XL="http://www.w3.org/1999/xlink";
+  const CAP_P=["fill","stroke","stroke-width","stroke-opacity","fill-opacity","opacity","font-size","font-weight","font-family","letter-spacing","paint-order","stroke-linejoin","stroke-dasharray","display"];
+  // copy the live SVG with all CSS (theme colors, classes) baked in, so it renders as a standalone image
+  function svgImage(svg,w,h){
+   const cl=svg.cloneNode(true),src=svg.querySelectorAll("*"),dst=cl.querySelectorAll("*");
+   for(let i=0;i<src.length;i++){
+    const o=src[i],d=dst[i],s=getComputedStyle(o);
+    if(d.hasAttributeNS(XL,"href"))d.removeAttributeNS(XL,"href");
+    if(o.tagName==="stop"){d.style.setProperty("stop-color",s.getPropertyValue("stop-color"));d.style.setProperty("stop-opacity",s.getPropertyValue("stop-opacity"));continue;}
+    if(o.closest("defs"))continue;
+    for(const p of CAP_P){const v=s.getPropertyValue(p);if(v&&v.indexOf("url(")<0)d.style.setProperty(p,v);}
+    d.style.removeProperty("transition");
+   }
+   cl.removeAttribute("class");
+   cl.setAttribute("xmlns","http://www.w3.org/2000/svg");
+   cl.setAttribute("width",w);cl.setAttribute("height",h);
+   const str=new XMLSerializer().serializeToString(cl);
+   return new Promise(function(res,rej){const im=new Image();
+    im.onload=function(){res(im);};im.onerror=rej;
+    im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(str);});
+  }
+  function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+  function dlFile(href,name){const a=document.createElement("a");a.href=href;a.download=name;document.body.appendChild(a);a.click();a.remove();}
+
+  async function capture(){
+   if(capBusy)return;capBusy=true;capH.disabled=capK.disabled=true;
+   const t=T[cur.lang],u=UNITS[cur.metric];
+   try{
+    const cs=getComputedStyle(document.body),V=function(n){return cs.getPropertyValue(n).trim();};
+    const FF='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Thai",sans-serif';
+    const kImg=await svgImage(document.querySelector("svg.knee"),640,500);
+    const ch=document.getElementById("chart");
+    const W=1000,P=40,IW=W-P*2;
+    let cw=0,chh=0;
+    if(ch.width&&ch.height){const s=Math.min((IW-40)/ch.width,420/ch.height);cw=ch.width*s;chh=ch.height*s;}
+    const kY=120,kH=640,cY=kY+kH+20,lgY=cY+60+chh+16,cH=lgY+74-cY+20,H=cY+cH+56;
+    const c=document.createElement("canvas");c.width=W;c.height=H;
+    const x=c.getContext("2d");
+    x.fillStyle=V("--bg");x.fillRect(0,0,W,H);
+
+    // header: title + time + status
+    const d=new Date(),p2=function(n){return (n<10?"0":"")+n;};
+    const ds=d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()),ts=p2(d.getHours())+":"+p2(d.getMinutes())+":"+p2(d.getSeconds());
+    x.textAlign="left";x.fillStyle=V("--text");x.font="700 30px "+FF;x.fillText(t.title,P,62);
+    x.fillStyle=V("--muted");x.font="15px "+FF;
+    x.fillText(ds+" "+ts+"  ·  "+statusEl.textContent+"  ·  "+(calOn?t.cal:t.nocal)+"  ·  "+(mode===1?t.md1:t.md0)+"  ·  "+u.s,P,94);
+
+    // knee card
+    rr(x,P,kY,IW,kH,16);x.fillStyle=V("--surface");x.fill();x.strokeStyle=V("--border");x.lineWidth=1.5;x.stroke();
+    x.fillStyle=V("--muted");x.font="700 13px "+FF;x.fillText(kTitle.textContent.toUpperCase(),P+20,kY+32);
+    const ix=(W-640)/2,iy=kY+70;
+    x.drawImage(kImg,ix,iy,640,500);
+    x.font="700 12px "+FF;x.textAlign="center";x.fillStyle=V("--muted");
+    x.fillText(oriT.textContent,W/2,iy+12);
+    x.fillText(oriB.textContent,W/2,iy+494);
+    x.save();x.translate(ix+6,iy+250);x.rotate(-Math.PI/2);x.fillText(oriL.textContent,0,0);x.restore();
+    x.save();x.translate(ix+634,iy+250);x.rotate(Math.PI/2);x.fillText(oriR.textContent,0,0);x.restore();
+    x.fillText(copnote.textContent,W/2,kY+kH-22);
+
+    // graph card
+    rr(x,P,cY,IW,cH,16);x.fillStyle=V("--surface");x.fill();x.strokeStyle=V("--border");x.stroke();
+    x.textAlign="left";x.fillStyle=V("--muted");x.font="700 13px "+FF;x.fillText(chTitle.textContent.toUpperCase(),P+20,cY+32);
+    const ab=document.querySelector(".rbtn.active");
+    x.textAlign="right";x.fillStyle=V("--accent");
+    x.fillText(cur.gtype===1?t.bar:(ab?ab.textContent:""),W-P-20,cY+32);
+    if(cw)x.drawImage(ch,(W-cw)/2,cY+50,cw,chh);
+
+    // value tiles (same colors as nodes / graph)
+    const names=["AL","AM","PL","PM"],tw=(IW-40-36)/4;
+    for(let i=0;i<4;i++){
+     const tx=P+20+i*(tw+12),col=V("--c"+i);
+     rr(x,tx,lgY,tw,70,10);x.fillStyle=V("--surface2");x.fill();x.strokeStyle=V("--border");x.stroke();
+     x.fillStyle=col;x.fillRect(tx+10,lgY,tw-20,4);
+     x.textAlign="center";x.font="800 13px "+FF;x.fillText(names[i],tx+tw/2,lgY+22);
+     x.fillStyle=V("--text");x.font="700 22px "+FF;x.fillText(document.getElementById("lv"+i).textContent,tx+tw/2,lgY+48);
+     x.fillStyle=V("--muted");x.font="11px "+FF;x.fillText(u.s,tx+tw/2,lgY+63);
+    }
+    x.textAlign="center";x.fillStyle=V("--muted");x.font="12px "+FF;x.fillText(foot.textContent,W/2,H-22);
+
+    const name="knee_"+ds.replace(/-/g,"")+"_"+ts.replace(/:/g,"")+".png";
+    await new Promise(function(res,rej){
+     try{
+      if(c.toBlob){c.toBlob(function(b){
+        if(!b){dlFile(c.toDataURL("image/png"),name);res();return;}
+        const url=URL.createObjectURL(b);dlFile(url,name);setTimeout(function(){URL.revokeObjectURL(url);},5000);res();},"image/png");}
+      else{dlFile(c.toDataURL("image/png"),name);res();}
+     }catch(e){rej(e);}
+    });
+   }catch(e){alert(t.capFail);}
+   finally{capBusy=false;capH.disabled=capK.disabled=false;}
+  }
+
   function downloadCsv(){window.location.href="/download";}
   function deleteCsv(){if(confirm(T[cur.lang].confirmDel)){fetch("/clear").then(function(){clearHist();});}}
   function setKeep(v){cur.keep=parseInt(v,10)||0;fetch("/set?keep="+cur.keep).catch(function(){});}
@@ -666,23 +928,48 @@ let cur={theme:1,lang:1,metric:0,auto:true,gtype:0,keep:0};
    if(busy)return false;busy=true;let ok=false;
    try{const d=await getJson("/data");
     cur.theme=d.theme;cur.lang=d.lang;cur.metric=d.metric;cur.auto=d.auto;cur.keep=d.keep;
+    if(Array.isArray(d.a)&&d.a.length===2)cur.a=d.a;
     if(Date.now()-gLock>2000)cur.gtype=d.graphtype;
     applyTheme();applyLang();applyType();render(d);ok=true;}catch(e){}
    busy=false;return ok;
   }
   async function pollLoop(){const ok=await poll();setTimeout(pollLoop,ok&&view===0?0:POLL_MS);}
+
+  function numStr(v){return String(Number(v.toFixed(6)));}
   function openPanel(){selTheme.value=cur.theme;selLang.value=cur.lang;selMetric.value=cur.metric;selGType.value=cur.gtype;
-   chkAuto.checked=cur.auto;selMat.value=mat;selKeep.value=cur.keep;panel.classList.add("open");}
+   chkAuto.checked=cur.auto;selMat.value=mat;selKeep.value=cur.keep;selMode.value=mode;
+   // min / max are shown in the current unit; only sent back if the user changes them
+   const t=T[cur.lang];panelMetric=cur.metric;const pu=UNITS[panelMetric];
+   lblMin.firstChild.nodeValue=t.min+" ("+pu.s+")";lblMax.firstChild.nodeValue=t.max+" ("+pu.s+")";
+   panelMin=numStr(cur.a[0]*pu.f);panelMax=numStr(cur.a[1]*pu.f);
+   inMin.value=panelMin;inMax.value=panelMax;inRed.value=redPct;
+   advErr.textContent="";updateCalUi();
+   panel.classList.add("open");}
   function closePanel(){panel.classList.remove("open");}
-  async function saveAndClose(){const q="theme="+selTheme.value+"&lang="+selLang.value+"&metric="+selMetric.value+"&graphtype="+selGType.value+"&auto="+(chkAuto.checked?1:0);
-   await fetch("/set?"+q);panel.classList.remove("open");poll();}
+  async function saveAndClose(){
+   const t=T[cur.lang];advErr.textContent="";
+   let q="theme="+selTheme.value+"&lang="+selLang.value+"&metric="+selMetric.value+"&graphtype="+selGType.value+"&auto="+(chkAuto.checked?1:0);
+   const mnS=inMin.value.trim(),mxS=inMax.value.trim();
+   if(mnS!==panelMin||mxS!==panelMax){
+    const mn=parseFloat(mnS),mx=parseFloat(mxS),pu=UNITS[panelMetric];
+    if(!isFinite(mn)||!isFinite(mx)||mn>=mx){advErr.textContent=t.errRange;return;}
+    q+="&min="+numStr(mn/pu.f)+"&max="+numStr(mx/pu.f);      // backend works in grams
+   }
+   const rp=parseFloat(inRed.value);
+   if(!(rp>=1&&rp<=100)){advErr.textContent=t.errRed;return;}
+   redPct=rp;try{localStorage.setItem("kneeRed",redPct);}catch(e){}
+   yLo=null;
+   try{const r=await fetch("/set?"+q);
+    if(!r.ok){advErr.textContent=r.status===400?t.errRange:t.errSave;return;}}
+   catch(e){advErr.textContent=t.errSave;return;}
+   panel.classList.remove("open");poll();}
 
   window.addEventListener("resize",drawChart);
   if(window.ResizeObserver){new ResizeObserver(function(){drawChart();}).observe(document.getElementById("plot"));}
 
   fetch("/time?t="+Math.floor(Date.now()/1000)).catch(function(){});
 function tick(){const d=new Date(),p=function(n){return (n<10?"0":"")+n;};clock.textContent=p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());}
-applyMat(mat);applyType();pollLoop();tick();setInterval(tick,1000);
+applyMat(mat);applyMode();updateCalUi();applyType();pollLoop();tick();setInterval(tick,1000);
 </script>
 </body></html>
 )HTML";

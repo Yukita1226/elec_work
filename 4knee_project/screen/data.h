@@ -25,6 +25,11 @@ struct Setting_data {
   bool     isauto   = true;
 };
 
+struct Advance_setting {
+  double min;
+  double max;
+};
+
 struct Graph_data {
   Theme    theme    = dark;  
   Type     type     = line;

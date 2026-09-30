@@ -8,7 +8,7 @@
 #include "FS.h"
 #include "LittleFS.h"
 
-const char* ap_ssid = "KneeMonitor";
+const char* ap_ssid = "KneeMonitor ";
 
 const int k[4] = {1,2,3,4};
 
@@ -17,9 +17,10 @@ DNSServer   dnsServer;
 Preferences prefs;
 const byte  DNS_PORT = 53;
 
-Recive_data  knee;
-Setting_data settings;
-Graph_data   graph;
+Recive_data       knee;
+Setting_data      settings;
+Graph_data        graph;
+Advance_setting   adv;
 
 volatile unsigned long lastRecvTime = 0;
 volatile uint32_t      bootEpoch    = 0;
@@ -30,6 +31,10 @@ const unsigned long LOG_INTERVAL = 1000;
 
 unsigned long       lastRead      = 0;
 const unsigned long READ_INTERVAL = 10;
+
+const int           OVERSAMPLE    = 16;                      // reads per sample (more = less noise, slower)
+const float         EMA_ALPHA     = 0.2f;                    // 0..1 (lower = smoother but reacts slower)
+float               filt[4]       = {NAN, NAN, NAN, NAN};    // filtered raw ADC per channel
 
 const int           HIST_NB      = 120;
 const uint32_t      HIST_STEP[3] = {1UL, 5UL, 10UL};
@@ -44,6 +49,7 @@ unsigned long       lastPurge    = 0;
 const unsigned long PURGE_INTERVAL = 86400000UL;  
 bool                purgedOnce   = false;
 
+String jnum(double v) { return isnan(v) ? String("null") : String(v, 1); }
 
 uint32_t nowEpoch() {
   if (bootEpoch == 0) return 0;
@@ -62,10 +68,15 @@ uint32_t keepSeconds() { // week , month , year
 
 void loadSettings() {
   prefs.begin("knee", true);
+
   settings.theme    = (Theme)   prefs.getUChar("theme", dark);
   settings.language = (Language)prefs.getUChar("lang",  english);
   settings.metric   = (Modify)  prefs.getUChar("metric", gram);
   settings.isauto   =           prefs.getBool ("auto",  true);
+
+  adv.min           =           prefs.getDouble("min", 0.0);
+  adv.max           =           prefs.getDouble("max", 100.0);
+
   keepMode          =           prefs.getUChar("keep",  0);
   prefs.end();
 }
@@ -84,6 +95,10 @@ void saveSettings() {
   prefs.putUChar("metric", settings.metric);
   prefs.putBool ("auto",   settings.isauto);
   prefs.putUChar("keep",   keepMode);
+
+  prefs.putDouble("min",    adv.min);
+  prefs.putDouble("max",    adv.max);
+
   prefs.end();
 }
 
@@ -95,17 +110,35 @@ void savegraph() {
 }
 
 
+// read one pin many times, drop highest + lowest (kills spikes), average the rest -> 0..4095
+float readRaw(int pin) {
+  uint32_t sum = 0; int lo = 4095, hi = 0;
+  for (int i = 0; i < OVERSAMPLE; i++) {
+    int v = analogRead(pin);
+    sum += v;
+    if (v < lo) lo = v;
+    if (v > hi) hi = v;
+  }
+  return (sum - lo - hi) / (float)(OVERSAMPLE - 2);
+}
+
+// exponential moving average per channel
+float smooth(int i, float raw) {
+  if (isnan(filt[i])) filt[i] = raw;               // first reading: start right there, no slow ramp
+  else                filt[i] += EMA_ALPHA * (raw - filt[i]);
+  return filt[i];
+}
+
 void readSensors() {
-  knee.knee1 = analogRead(k[0])*100/4095;
-  knee.knee2 = analogRead(k[1])*100/4095;
-  knee.knee3 = analogRead(k[2])*100/4095;
-  knee.knee4 = analogRead(k[3])*100/4095;
+  knee.knee1 = adv.min + (smooth(0, readRaw(k[0]))/4095.00) * (adv.max - adv.min);
+  knee.knee2 = adv.min + (smooth(1, readRaw(k[1]))/4095.00) * (adv.max - adv.min);
+  knee.knee3 = adv.min + (smooth(2, readRaw(k[2]))/4095.00) * (adv.max - adv.min);
+  knee.knee4 = adv.min + (smooth(3, readRaw(k[3]))/4095.00) * (adv.max - adv.min);
 
 
 
   lastRecvTime = millis();
-  Serial.printf("knee: %.2f %.2f %.2f %.2f\n",
-                knee.knee1, knee.knee2, knee.knee3, knee.knee4);
+
 }
 
 bool isConnected() {
@@ -116,7 +149,7 @@ bool isConnected() {
 void inithistory() {
   for (int s=0;s<3;s++)
     for (int i=0;i<4;i++)
-      for (int b=0;b<HIST_NB;b++) hist[s][i][b] = -1;
+      for (int b=0;b<HIST_NB;b++) hist[s][i][b] = NAN;
 }
 
 void addhistory(const Recive_data &x) {
@@ -127,7 +160,7 @@ void addhistory(const Recive_data &x) {
       uint32_t gap = slot - histSlot[s];
       if (gap > (uint32_t)HIST_NB) gap = HIST_NB;
       for (uint32_t g=0;g<gap;g++) {
-        for (int i=0;i<4;i++) hist[s][i][histHead[s]] = (g==0 && histCnt[s]) ? histSum[s][i]/histCnt[s] : -1;
+        for (int i=0;i<4;i++) hist[s][i][histHead[s]] = (g==0 && histCnt[s]) ? histSum[s][i]/histCnt[s] : NAN;
         histHead[s] = (histHead[s]+1) % HIST_NB;
       }
       histSlot[s] = slot;
@@ -149,6 +182,9 @@ void handleData() {
   String j = "{";
   j += "\"k\":[" + String(knee.knee1,2) + "," + String(knee.knee2,2) + ","
                  + String(knee.knee3,2) + "," + String(knee.knee4,2) + "],";
+
+  j += "\"a\":[" + String(adv.min,2)    + "," + String(adv.max,2)    + "],";
+
   j += "\"connected\":"  + String(isConnected() ? "true" : "false")   + ",";
   j += "\"theme\":"      + String((int)settings.theme)                + ",";
   j += "\"lang\":"       + String((int)settings.language)             + ",";
@@ -156,12 +192,23 @@ void handleData() {
   j += "\"auto\":"       + String(settings.isauto ? "true" : "false") + ",";
   j += "\"graphtheme\":" + String((int)graph.theme)                   + ",";
   j += "\"graphtype\":"  + String((int)graph.type)                    + ",";
+
   j += "\"keep\":"       + String((int)keepMode);
   j += "}";
   server.send(200, "application/json", j);
 }
 
 void handleSet() {
+
+  double newMin = server.hasArg("min") ? server.arg("min").toDouble() : adv.min;
+  double newMax = server.hasArg("max") ? server.arg("max").toDouble() : adv.max;
+  if (newMin >= newMax) {
+    server.send(400, "application/json", "{\"ok\":false,\"err\":\"min must be less than max\"}");
+    return;
+  }
+  adv.min = newMin;
+  adv.max = newMax;
+
   if (server.hasArg("theme"))      settings.theme    = (Theme)   server.arg("theme").toInt();
   if (server.hasArg("lang"))       settings.language = (Language)server.arg("lang").toInt();
   if (server.hasArg("metric"))     settings.metric   = (Modify)  server.arg("metric").toInt();
@@ -206,8 +253,8 @@ void handleHistory() {
   String j = "{\"k\":[";
   for (int i=0;i<4;i++){
     j += i ? ",[" : "[";
-    for (int b=1;b<HIST_NB;b++) j += String(hist[s][i][(histHead[s]+b)%HIST_NB],1) + ",";
-    j += String(histCnt[s] ? histSum[s][i]/histCnt[s] : -1.0, 1) + "]";
+    for (int b=1;b<HIST_NB;b++) j += jnum(hist[s][i][(histHead[s]+b)%HIST_NB]) + ",";
+    j += jnum(histCnt[s] ? histSum[s][i]/histCnt[s] : NAN) + "]";
   }
   j += "]}";
   server.send(200, "application/json", j);
@@ -243,9 +290,8 @@ void initfile() {
 }
 
 void deletefile() {
-  File file = LittleFS.open("/knee_data.csv", "w");
-  if (file) { file.close(); Serial.println("CSV cleared."); }
-  else      { Serial.println("Error clearing CSV file."); }
+  if (LittleFS.remove("/knee_data.csv")) Serial.println("CSV removed.");
+  else                                   Serial.println("Error removing CSV.");
 }
 
 
