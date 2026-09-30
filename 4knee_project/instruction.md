@@ -23,4 +23,6 @@ Before connecting the board to your PC:
    - Read the printed MAC address from Serial Monitor
    - Copy it into `receiverMac[]` in `back_c3.ino`
 
-### File Location
+
+
+screen code at screen folder for other it 1. check ip 2. debug 
